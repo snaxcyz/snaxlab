@@ -5,39 +5,52 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentTimeEl = document.getElementById("current-time");
   const durationEl = document.getElementById("duration");
 
-  // 1. Play/Pause tugmasi
+  let canPlayRequested = false;
+  let isReady = false;
+
+  // Play tugmasi bosilganda
   playBtn.addEventListener("click", () => {
+    if (!isReady) {
+      canPlayRequested = true;
+      return; // audio tayyor bo‘lishi kutiladi
+    }
+
     if (audio.paused) {
-      audio.play();
-      playBtn.textContent = "⏸️";
+      audio.play().then(() => {
+        playBtn.textContent = "⏸️";
+      }).catch((e) => {
+        console.error("Play failed:", e);
+      });
     } else {
       audio.pause();
       playBtn.textContent = "▶️";
     }
   });
 
-  // 2. Audio metadata yuklanganda duration ko‘rsatish
+  // Audio metadata tayyor bo‘lganda
   audio.addEventListener("loadedmetadata", () => {
-    if (!isNaN(audio.duration)) {
-      seekBar.max = audio.duration;
-      durationEl.textContent = formatTime(audio.duration);
-    } else {
-      durationEl.textContent = "00:00";
+    isReady = true;
+    seekBar.max = audio.duration;
+    durationEl.textContent = formatTime(audio.duration);
+
+    if (canPlayRequested) {
+      canPlayRequested = false;
+      playBtn.click(); // avtomatik yana ishlatamiz
     }
   });
 
-  // 3. Audio davomida currentTime ni yangilash
+  // Audio davomida currentTime ni yangilash
   audio.addEventListener("timeupdate", () => {
     seekBar.value = audio.currentTime;
     currentTimeEl.textContent = formatTime(audio.currentTime);
   });
 
-  // 4. Qo‘lda vaqtni o‘zgartirish
+  // Qo‘lda vaqtni o‘zgartirish
   seekBar.addEventListener("input", () => {
     audio.currentTime = seekBar.value;
   });
 
-  // 5. Formatlash: mm:ss
+  // Formatlash: mm:ss
   function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -46,11 +59,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .padStart(2, "0")}`;
   }
 
-  // 6. Agar metadata event o‘tmay qolsa, majburan tekshir
+  // Qo‘shimcha sug‘urta: metadata yuklanmasa, 2 soniyadan keyin tekshirib ko‘r
   setTimeout(() => {
     if (audio.readyState >= 1 && !isNaN(audio.duration)) {
+      isReady = true;
       seekBar.max = audio.duration;
       durationEl.textContent = formatTime(audio.duration);
     }
-  }, 1000); // 1 soniyadan keyin tekshir
+  }, 2000);
 });

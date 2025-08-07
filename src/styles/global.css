@@ -167,3 +167,87 @@
   flex-grow: 1;
   cursor: pointer;
 }
+
+.video-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.video-container {
+  width: 100%;
+  max-width: 900px;
+  position: relative;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.video-container video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.play-button-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#circle-play-b {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+#circle-play-b svg {
+  width: 90px;
+  height: 90px;
+  fill: #fff;
+  stroke: #fff;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  opacity: 0.9;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#circle-play-b:hover svg {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+/* 🟦 Responsive Breakpoints */
+
+@media (max-width: 1024px) {
+  #circle-play-b svg {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .video-container {
+    max-width: 100%;
+  }
+  #circle-play-b svg {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-wrapper {
+    padding: 0.5rem;
+  }
+  #circle-play-b svg {
+    width: 60px;
+    height: 60px;
+  }
+}
