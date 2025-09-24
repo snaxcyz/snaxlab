@@ -1,0 +1,139 @@
+---
+title: 'Nginxda cors sozlamalari'
+description: CORS - orign resource share yoki manbalar boshqaruvi
+date: 2025-09-03
+tags: ['cors', 'nginx']
+authors: ['snaxcyz']
+---
+
+## Kirish 
+
+Cors - asosan  begona domenlardan asosiy domen ma’lumotlarini boshqarish uchun ishlatiladi. Odatda bu texnologiyadan frontend dasturchilar judayam yaxshi xabardor bo’lishadi.
+Chunki api so’rovlar uchun har doim cors sozlamalari muhim rol o’ynaydi. Lekin masalaning asosiy tomoni shudaki biz doim ham cors sozlamalari to’g’ri ko’rsatmaymiz. Brauzerlar rivojlangani sari ularning turali va standartlari ham ko’paymoqda. Masalan mozillada bir standart bo’lsa, chromeda boshqa standart qo’llaniladi. Oddiy misolda safari brauzerida wildcard (yulduzcha) orqali berilgan cors sozlamalari xavfsizlik talablari sabab ishlamaydi.(shuni yaqinda bildim hay)
+
+Nginxning har doimgidek hayratlarni konfiguratsiyalari cors sozlamalari uchunam alohida e’tibor qaratishni talab qiladi. Nginx juda ko’plab imkoniyatlarga egaligi sababli unda cors sozlamalarini ham turlicha sozlash imkoni mavjud. Bugun esa aynan shu confiratsiyaning kerakli domenlarni filtrlay olish kabi metodi bilan ko’rib chiqamiz.
+
+## Map moduli 
+
+Nginxda map moduli xuddi boshqa tillardagi switch yoki match case kabi ishlaydi. U bilan ma’lum o’zgaruvchini turli shartlar asosida tekshirib boshqa o’zgaruvchiga nusxalash yoki alohida qiymatda e’lon qilish mumkin.
+
+masalan:
+
+```
+map $uri $new_uri {
+    /old.html /new.html;
+}
+
+server {
+    if ($new_uri) {
+        rewrite ^ $new_uri permanent;
+    }
+}
+
+yoki:
+
+```nginx
+map $uri $new_uri {
+    /old-page      /new-page;
+    /products.html /shop/;
+    /about-old     /about-us;
+}
+
+server {
+    if ($new_uri) {
+        rewrite ^ $new_uri permanent;
+    }
+}
+```
+
+
+
+
+Yuqoridagi konfiguratsiyalar orqali eski sahifaga murojaat kuzatilganda uni yangi sahifaga yo’naltirsak bo’ladi.
+
+Yoki nginx geoip moduli (Maxmind deyiladi o'zi) orqali resurslarni faqat kerakli mamlakatlar uchun ruxsat berishni sozlasak:
+
+```
+map $geoip_country_code $allowed_country {
+    default no;
+    country_code_1 yes;
+    country_code_2 yes;
+}
+
+server {
+	if ($allowed_country = no) {
+        return 403;
+    }
+}
+```
+
+Endi yuqoridagi misollar bilan keyinchalik cors sozlamalarida kerakli hostlarni boshqarishni ko’rsak bo’ladi.
+```
+map $http_origin $cors_origin_header {
+    default "";
+    "http://cctld.uz" "$http_origin";
+    "https://cctld.uz" "$http_origin";
+    "~^https?://.*.cctld.uz$" "$http_origin";
+}
+
+map $http_origin $cors_cred {
+    default "";
+    "http://cctld.uz" "true";
+    "https://cctld.uz" "true";
+    "~^https?://.*.cctld.uz$" "true";
+}
+```
+
+*Lekini bor* ya'ni
+map modulida regexdan ham foydalanish mumkin, uchinchi shartdagi regex bu subdomenlar tekshiruvi uchun ishlay oladi masalan.
+
+## Http sarlavhalar:
+
+Sarlavhalarni nginxda `http_headers_module` orqali moduli bilan boshqarish mumkin, bu uchun `add_header` 'key' 'value'; shaklida kerakli qatorlarni kiritishning o’zi yetarli.
+
+shunda bu uchun yakuniy konfiguratsiya:
+
+```
+map $http_origin $cors_origin_header {
+    default "";
+    "http://cctld.uz" "$http_origin";
+    "https://cctld.uz" "$http_origin";
+    "~^https?://.*.cctld.uz$" "$http_origin";
+}
+
+map $http_origin $cors_cred {
+    default "";
+    "http://cctld.uz" "true";
+    "https://cctld.uz" "true";
+    "~^https?://.*.cctld.uz$" "true";
+}
+
+server {
+	location / {
+		if ($request_method = 'OPTIONS') {
+			add_header 'Access-Control-Allow-Origin' '$cors_origin_header';
+		    add_header 'Access-Control-Allow-Credentials' '$cors_cred';
+		    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+		    add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+		    add_header 'Access-Control-Max-Age' 1728000;
+		    add_header 'Content-Type' 'text/plain charset=UTF-8';
+		    add_header 'Content-Length' 0;
+		    return 204;
+		}
+
+		if ($request_method = 'POST') {
+			add_header 'Access-Control-Allow-Origin' '$cors_origin_header';
+		    add_header 'Access-Control-Allow-Credentials' '$cors_cred';
+		    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+		    add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+		}
+
+		if ($request_method = 'GET') {
+			add_header 'Access-Control-Allow-Origin' '$cors_origin_header';
+		    add_header 'Access-Control-Allow-Credentials' '$cors_cred';
+		    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+		    add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+		}
+	}
+}
+```

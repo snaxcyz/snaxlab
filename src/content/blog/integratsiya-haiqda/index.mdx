@@ -1,0 +1,322 @@
+---
+title: To'lov tizimlari uchun integratsiya
+description:  Payme, Click va boshqa turdagi tizimlarga qanday ulanishi haqida
+date: 2025-09-21
+tags: ['experience']
+authors: ['snaxcyz']
+---
+
+## Kirish
+
+O'zbekistonda online savdo servislari juda rivojlanyapti, shunday ekan ular uchun to'lov servislariga bo'lgan talab ham ortib boryapti.
+O’zbekistonda bunday servislar yetarlicha bor, ammo ularga ulanish masalasida hammada ham tushuncha mavjud emas. Bu postda esa ishxonada jamoa bilan nimaga duch kelganimizni va  ana shu jarayon haqida oz bo’lsada tushuncha berishga harakat qilmoqchiman.
+
+Oldindan aytish kerakki bu holatda aslida texnik jarayondan ko’ra yuridik masalalar bosh og’riq. Harholda men shaxsiy foydalanishda yoki servis jihatidan paymedan boshqa normal javob bergan tizimdan xabardor emasman. 
+
+Aytgancha bekorga yuridik jarayon deb so’z yuritilmadi. Hozircha O’zbekiston qonunchiligida siz bundan tizimlarga ulanish uchun yuridik shaxs hisobidan bo’lishingiz kerak. Jismoniy shaxslar nomida esa faqatgina YATT uchun imkoniyat mavjud xolos (Ammo YATT bu nogiron korxonadek).
+
+## Texnik qism
+
+To’lov tizimlari uchun ulanishda asosan ikki xil turdagi usul mavjud, bular: 
+1. Subscribe API 
+2. Merchant API.
+
+Subscribe API - to’lovlarni amalga oshirish uchun so’rovlar talabgor ilova tomonidan yuboriladi. 
+
+Merchant API - to’lovlarni amalga oshirish uchun so’rovlar to’lov tizimidan ilovaga qarab.
+
+Tajribadan kelib chiqib aytadigan bo’lsam agarda zarurat bo’lmasa merchat apini tanlash ancha qulay tushadi. Bundan tizim webhook ko’rinishida ishlaydi (Xuddiki telegram kabi). To’lov tizimi kerakli harakat va qiymatlarni sizga POST ko’rinishida yuboradi, sizdan esa shunga qarab javob berishni o’zi yetarli.
+
+## Texnik qismni payme obrazida tushunsak
+
+Birgina to’lov tizimiga ulanish prinsiplarini tushunib olsangiz qolgan barchasi deyarli bir xil tartibda ishlaydi va keyinchalik ulanishlar osonlashib boraveradi. Menimcha buni o’rganish uchun eng yaxshi usul bu payme bo’lsa kerak, ularda harholda testlash jarayonlari uchun yaxshi sharoitlar yaratilgan, shuningdek xodimlari ham doimo sizni qiziqtirgan savollarga javob berishga tayyor (o'zimni ishxonamni maqtayapman sezgan bo'lsanglar).
+
+Agarda siz hayotingizda bir marotaba bo’lsada telegram bot yaratib ko’rgan bo’lsangiz to’lov tizimiga ulanish qiyinchilik tug’dirmaydi. Faqatgina telegram botdan farqli bir necha metodlar logikasiga to’g’ri javob bera olasangiz yetarli.
+
+### metodlar
+
+1. CheckPerformTransaction - to’lov qila olish imkonini tekshirish
+2. CreateTransaction - to’lov qilish uchun tranzaksiya ochish
+3. PerformTransaction - to’lov muvaffaqiyatli amalga oshirilganini tasdiqlash
+4. CancelTransaction - to’lovni bekor qilish
+5. CheckTransaction - tranzaksiya holatini tekshirish
+
+## CheckPerformTransaction
+Ushbu metod to’lov tizimi tomonidan integratsiya qilish kerak bo’lgan ilovada to’lov qila olish imkonini tekshirish uchun yuboriladi. Masalan to’lov idenfikatoriga asosan foydalanuvchi mavjud yoki mavjud emasligi yoki to’lov qilish kerak bo’lgan buyurtma holati, shuningdek to’lov summasining mutanosibligi ham. Aynan shu jarayonda ruxsat berilishiga qarab boshqa jarayonlar davomiyligi bahonaladi.
+
+Sizga keladigan so’rovga misol:
+
+```
+{
+    "method" : "CheckPerformTransaction",
+    "params" : {
+        "amount" : 500000,
+        "account" : {
+            "phone" : "123456789"
+        }
+    }
+}
+```
+Bunda:
+
+`method->CheckPerformTransaction ->` amalga oshirish kerak bo’lgan jarayon `params.amount -> 500000` - to’lov qilinishi kerak bo’lgan summa tiyinlarda `params.amount.account.phone -> 123456789` - to’lov qilish kerak bo’lgan nuqta, ushbu qismda phone o’rnida o’zingiz kassa uchun o’rnatga boshqa nom va siz belgilagan sozlamagan qarab boshqa turdagi ma’lumot bo’lishi mumkin (Masalan order_id). Bunda albatta ushbu ma’lumotga qarab sizning tizimingiz to’lovni qaysi nuqtaga qabul qilishni belgilaydi.
+
+Agarda to’lov qila olish qobiliyati bo’lsa shunda siz tizimga qayta ruxsat javobini berishingiz lozim:
+
+```
+{
+    "result" : {
+        "allow" : true
+    }
+}
+```
+
+Shuningdek additional yoki detail massivi orqali to’lov tizimi uchun qo’shimcha ma’lumot uzatishingiz ham mumkin. Masalan elektr to’li amalga oshirgan bo’lsangiz uyerda sizning elektr tizimidagi joriy ma’lumotlaringiz beriladi. Buyerda ham xuddi shunday holat amalga oshiriladi.
+
+Agarda bunday imkoniyat mavjut bo’lmasa, masalan akkaunt yo’qligi yoki summaning xatolihi holatlarida unga tegishli xatolik qaytariladi.
+
+## CreateTransaction»
+
+Birinchi metoddan so’ng to’lov qila olish imkoni mavjud bo’lsa, to’lov tizimi tomonidan sizga quyidagi metoddagi so’rov kelib tushadi. Bu metodda siz o’z tizimingiz doirasida tranzaksiya ochishingiz va xuddi shu tranzaksiya unikalligini ta’minlovchi javobni berishingiz lozim (masalan identifikator).
+
+```
+{
+	"method" : "CreateTransaction",  
+	"params" : {  
+		"id" : "5305e3bab097f420a62ced0b",  
+		"time" : 1399114284039,  
+		"amount" : 500000,  
+		"account" : {  
+			"phone" : "903595731"  
+		}  
+	}  
+}
+```
+
+`method->CheckPerformTransaction ->` amalga oshirish kerak bo’lgan jarayon
+
+`params.id` - to’lov ilovasi tomonidan yuborilgan identifikator `params.time`- to’lov ilovasi tomonidan yuborilgan vaqt (to’lov qilishga so’rov berilgan) params.amount - to’lov ilovasi tomonidan yuborilgan summa `params.account.phone` - to’lov qilish kerak bo’lgan nuqta
+
+Agarda yuqoridagi maydonlar qiymatlari sizning tizimingiz tomonidan maqul deb topilsa to’lov tizimiga quyidagicha javob uzatish lozim:
+
+```
+{  
+	"result" : {  
+		"create_time" : 1399114284039,  
+		"transaction" : "5123",  
+		"state" : 1  
+	}  
+}
+```
+
+result.create_time - tranzaksiya ochilgan vaqt result.transaction - sizning tizimingiz tomonidan ochilgan tranzaksiya id (unikal) raqami result.state - tranzaksiya holati, 1 bundan ochilganlikni belgilaydi. Agarda xuddi shunday parametr bilan yana bir bora tranzaksiya uchun so’rov kelgan bo’lsa boshqa status qaytarish lozim bo’ladi. Masalan to’lov vaqti o’tganda -1 yoki to’lov qilingan bo’lsa 2.
+
+## PerformTransaction»
+
+Bu metod to’lov haqiqatda amalga oshganda to’lov tizimini tomonidan yuboriladi.
+
+
+method->PerformTransaction - amalga oshirish kerak bo’lgan metod params.id -> avvalroq tranzaksiya ochish jarayonida sizga yuborilgan id raqam. Ushbu raqam orqali kerakli to’lov ma’lumoti ochilgan tranzaksiyadan topilib to’lov amalga oshirilgani tasdiqlanishi lozim. Masalan balans to’ldirilishi yoki order yopilishi.
+
+## CancelTransaction»
+
+To’lovni bekor qilish. Bu metod majburiy hisoblanmaydi. Ya’ni tabga ko’ra ishlatishingiz mumkin. Bundan avvalroq perform qilingan to’lovni bekor qilish uchun foydalaniladi. Ya’ni to’lovni qaytarib berish va foydalanuvchi balansidan to’langan summani qaytib olib tashlash.
+
+
+## CheckTransaction»
+
+Tranzaksiya holatini tekshirish, bunda sizga avvalroq yuborilgan tranzaksiya identifikatori beriladi va sizdan tranzaksiya uchun kerak bo’lgan ma’lumotlarni uzatish so’raladi. Masalan to’lov qilingan bo’lsa uning statusi, yoki bekor qilingan bo’lsa bekor qilingan vaqti kabi holatlar.
+
+
+Albatta barcha to’lov tizimlaridayam metodlar bunday emas. Lekin ularning ishlashi deyarli bir xilda. Hattoki ko’plab to’lov tizimlarida ikki donadan xolos. Tranzaksiyasi tekshirish va to’lovni tasdiqlash.
+
+## Psevdokod»
+Yuqoridagi jarayonlarni taxminiy amalga oshirish uchun psevdo kod, bu orqali ishlash mexanizmni kammi ko’pmi tushunsangiz bo’ladi:
+
+```
+
+<?php
+
+class Payme{
+    
+    private $login;
+    private $key;
+    private $data;
+
+    function __construct($login, $key) {
+        $this->login = $login;
+        $this->key = $key;
+    }
+
+    public function checkAuth() {
+        $secretHeader = $_SERVER['HTTP_AUTHORIZATION'];
+
+        if (
+            preg_match( '/^\s*Basic\s+(\S+)\s*$/i', $secretHeader, $matches ) &&
+            base64_decode( $matches[1] ) == $this->login . ":" . $this->key
+        ) {
+            return true;
+        }
+
+        return [
+            'error' => [
+                "code" => -32504,
+                "message" => [
+                    "uz" => "Avtorizatsiyadan otishda xatolik",
+                    "ru" => "Auth error",
+                    "en" => "Auth error"
+                ],
+                "data" => null
+            ],
+            'result' => null,
+            'id' => null
+        ];
+    }
+
+    public function setData( $data ) {
+        $this->data = $data;
+    }
+
+    public function CheckPerformTransaction() {
+        return [
+            "error" => null,
+            "result" => [
+                "allow" => true
+            ],
+            "id" => $this->data['id']
+        ];
+    }
+
+    public function CheckTransaction() {
+        $createTime = time(); //Tranzaksiya ochilgan vaqt
+        $performTime = time(); //To'lov amalga oshgan vaqt
+        $cancelTime = time(); //TO'lov bekor qilingan vaqt
+        $transaction = 1234; //Tranzaksiya identifikatori
+        $state = 2; //Tranzaksiya holati
+        $reason = 0; //Xatolik sababi
+
+
+        return [
+            "error" => null,
+            "result" => [
+                "create_time" => $createTime,
+                "perform_time" => $performTime,
+                "cancel_time" => $cancelTime,
+                "transaction" => strval($transaction),
+                "state" => $state,
+                "reason" => $reason
+            ],
+            "id" => $this->data['id']
+        ];
+    }
+
+    public function createTransaction() {
+        $time = time(); //tranzaksiya ochilgan vaqt
+        $id = 12345; //tranzaksiya id raqami
+        $state = 1; //tranzaksiya holati
+
+        return [
+            "error" => null,
+            "result" => [
+                'create_time' => $time,
+                'transaction' => $id,
+                'state' => $state,
+            ],
+            "id" => $this->data['id']
+        ];
+    }
+
+    public function PerformTransaction() {
+        
+        /*
+            Buyerda balansni to'ldirish logikasi kerak edi
+        */
+
+        $state = 2; //tranzaksiya holati
+        $performTime = time(); //tranzaksiya ochilgan vaqt
+        $transaction = 123; //tranzaksiya id raqami
+
+        return [
+            "error" => null,
+            "result" => [
+                "state" => $state,
+                "perform_time" => $performTime,
+                "transaction" => strval($transaction),
+            ],
+            "id" => $this->data['id']
+        ];
+    }
+
+    public function cancelTransaction() {
+        return [
+            'error' => [
+                "code" => -31007,
+                "message" => [
+                    "uz" => "Siz tranzaksiyani bekor qila olmaysiz",
+                    "ru" => "Невозможно отменить транзакцию",
+                    "en" => "You can not cancel the transaction"
+                ],
+                "data" => null
+            ],
+            'result' => null,
+            'id' => null
+        ];
+    }
+}
+
+$payme = new Payme();
+
+$authStatus = $this->payme->checkAuth();
+        
+if ( is_array( $authStatus ) ) {
+    echo json_encode( $authStatus );
+    exit();
+}
+
+$data = file_get_contents("php://input");
+$data = json_decode( $data, TRUE );
+
+if ( !empty( $data ) ) {
+    
+    $this->payme->setData( $data );
+
+    if ( method_exists( $this->payme, $data['method'] ) ) {
+        $method = $data['method'];
+        $response = $this->payme->$method();
+    }else{
+        $response = [
+            'error' => [
+                "code" => -32601,
+                "message" => [
+                    "uz" => "Metod topilmadi",
+                    "ru" => "Запрашиваемый метод не найден",
+                    "en" => "Metod not found"
+                ],
+                "data" => null
+            ],
+            'result' => null,
+            'id' => null
+        ];
+    }
+
+    echo json_encode( $response );
+
+    exit();
+    
+}
+
+echo json_encode([
+    'error' => [
+        "code" => -32600,
+        "message" => [
+            "uz" => "Jsonni tahlil qilishda xatolik yuz berdi",
+            "ru" => "Ошибка при парсинге JSON",
+            "en" => "Error while parsing json"
+        ],
+        "data" => null
+    ],
+    'result' => null,
+    'id' => null
+]);
+
+```

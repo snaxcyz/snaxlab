@@ -1,0 +1,132 @@
+---
+title: CI4 frameworkda loyihani qismlarga bo'lish
+description: boshdan o'tgan nimadir 
+date: 2025-07-11
+tags: ['cI4', 'framework']
+authors: ['snaxcyz']
+---
+
+### Kirish
+
+Codeigniter kapot ostidanoq bitta yadro (system) asosida bir necha ilova qurish imkonini beradi. Masalan birbalo uz  va birbalo2 uz  ning yadrosi bitta ammo unga tegishli MVC va resurslar papkasi alohida bo’lishi mumkin.
+
+Lekin resurslar bir ammo bir appning o’zini bo’lib tashash kerak bo’lsachi? Albatta MVC ichiniyam default app papkalari orqali manage qilish imkoni bor, ammo kattaroq appda bu bosh og’riqqa aylanishi mumkin. Shu sababli quyidagi struktura ishni osonlashtiradi.
+
+Masalan tassavvur qilaylik:
+
+```
+app:
+	Defolt ilova
+blog:
+	Controllers
+	Models
+	Views
+	blogRoutes.php
+shop:
+	Controllers
+	Models
+	Views
+	shopRoutes.php
+users:
+	Controllers
+	Models
+	Views
+	blogRoutes.php
+public:
+	Front
+system:
+	Yadro
+writable:
+	Resurslarni yozish uchun
+
+
+```
+
+Hop  strukturani qanday sozlash kerak?
+
+
+## app/Config/Autoload.php
+
+aynan shu fayldan $psr4 massivi namespaceslar orqali yuklash ya'ni:
+
+```
+public $psr4 = [
+    APP_NAMESPACE => APPPATH,
+    'Config'      => APPPATH . 'Config',
+    
+    'Blog\Controllers' => ROOTPATH . 'blog/Controllers',
+    'Blog\Filters' => ROOTPATH . 'blog/Filters',
+    'Blog\Libraries' => ROOTPATH . 'blog/Libraries',
+    'Blog\Models' => ROOTPATH . 'blog/Models',
+    'Blog\Views' => ROOTPATH . 'blog/Views',
+
+    'Shop\Controllers' => ROOTPATH . 'shop/Controllers',
+    'Shop\Filters' => ROOTPATH . 'shop/Filters',
+    'Shop\Libraries' => ROOTPATH . 'shop/Libraries',
+    'Shop\Models' => ROOTPATH . 'shop/Models',
+    'Shop\Views' => ROOTPATH . 'shop/Views',
+
+    'User\Controllers' => ROOTPATH . 'user/Controllers',
+    'User\Filters' => ROOTPATH . 'user/Filters',
+    'User\Libraries' => ROOTPATH . 'user/Libraries',
+    'User\Models' => ROOTPATH . 'user/Models',
+    'User\Views' => ROOTPATH . 'user/Views',
+];
+
+```
+
+## Routerlarni har bir modul papkasidan alohida qo’shib ketish»
+
+`app/Config/Routes.php` faylining quyi qismiga quyidagi o’zgarish qo’shiladi.
+
+```
+if (file_exists(ROOTPATH . 'blog/blogRoutes.php')) {
+    require ROOTPATH . 'blog/blogRoutes.php';
+}
+if (file_exists(ROOTPATH . 'shop/shopRoutes.php')) {
+    require ROOTPATH . 'shop/shopRoutes.php';
+}
+if (file_exists(ROOTPATH . 'user/userRoutes.php')) {
+    require ROOTPATH . 'user/userRoutes.php';
+}
+```
+
+Birgina modulga misolcha hay:
+
+```
+<?php
+
+namespace Blog\Controllers;
+
+use App\Controllers\BaseController;
+
+class Read extends BaseController {
+    public function show( int $id ): string {
+	    // Buyerda blog ma'lumotlarini qayta ishlaysiz
+        return view( 'Blog\Views\read', $data );
+    }
+}```
+
+1. blog/Views/read.php fayli
+
+``
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title><?=esc( $title )?></title>
+</head>
+<body>
+	<h1><?=esc( $title )?></h1>
+	<p><?=esc( $content )?></p>
+</body>
+```
+2. blog/blogRoutes.php fayli
+
+```
+$routes->group('blog', ['namespace' => 'Blog\Controllers'], static function ( $routes ) {
+    	$routes->get('/', 'List::index');
+    	$routes->get('/read/(:num)', 'Read::index');
+});
+
+``

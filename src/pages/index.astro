@@ -1,0 +1,73 @@
+---
+import BlogCard from '@/components/BlogCard.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import { buttonVariants } from '@/components/ui/button'
+import { SITE } from '@/consts'
+import Layout from '@/layouts/Layout.astro'
+import { getRecentPosts } from '@/lib/data-utils'
+
+const blog = await getRecentPosts(SITE.featuredPostCount)
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Home" />
+    <section>
+    <div class="rounded-lg border">
+      <div class="flex flex-col space-y-1.5 p-6">
+        <!-- SnaxLab-cyz animation -->
+        <div
+          class="flex h-[36px] items-center gap- overflow-hidden text-3xl leading-none font-medium"
+        >
+          <span>Snax</span>
+          <span class="relative inline-block h-[36px] overflow-hidden">
+            <ul class="animate-snax-slide text-primary font-medium">
+              <li>Lab</li>
+              <li>cyz</li>
+              <li>Lab</li>
+            </ul>
+          </span>
+        </div>
+
+        <p class="text-muted-foreground text-sm">
+          /snæksɪz/&bull; <span class="font-medium">noun</span>
+        </p>
+      </div>
+      <div class="p-6 pt-0">
+        <p class="text-muted-foreground mb-2 text-sm">
+          My digital world. Here you can find various articles covering music, book reviews, art, math,coding and some shit
+          <br></br>
+            Bu mening shaxsiy sayt blogim. O'zimga manzur keladigan narsalar haqida yozish uchun ishlab chiqganman. Senzura yo'q meni ma'naviyatim ham
+                 <br></br>
+          *warning:
+          zero filter,no censorship, may contain curse words, just pure unfiltered expression.
+           <br></br>
+      
+        </p>
+      </div>
+    </div>
+  </section>
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">Latest posts</h2>
+    <ul class="flex flex-col gap-y-4">
+      {
+        blog.map((post) => (
+          <li>
+            <BlogCard entry={post} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="flex justify-center">
+      <Link
+        href="/blog"
+        class={buttonVariants({ variant: 'ghost' }) + ' group'}
+      >
+        See all posts <span
+          class="ml-1.5 transition-transform group-hover:translate-x-1"
+          >&rarr;</span
+        >
+      </Link>
+    </div>
+  </section>
+</Layout>

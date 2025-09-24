@@ -1,0 +1,95 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import Link from '@/components/Link.astro'
+import PageHead from '@/components/PageHead.astro'
+import ProjectCard from '@/components/ProjectCard.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllProjects } from '@/lib/data-utils'
+
+const projects = await getAllProjects()
+---
+
+<Layout class="max-w-3xl">
+<style>
+.skill-box {
+  margin: 1rem 0;
+}
+.skill-label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.bar {
+  height: 14px;
+  border-radius: 8px;
+  background: #e5e7eb;
+  overflow: hidden;
+}
+.fill {
+  height: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg,#2563eb,#1d4ed8);
+  width: 0;                     /* JS will animate this */
+  transition: width 1s ease;
+}
+</style>
+
+  <PageHead slot="head" title="About" />
+  <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
+
+  <section>
+    <div class="min-w-full">
+      <div class="prose mb-8">
+        <p class="mt-0">
+        To'liq ism-familiyam:
+         Rahmatillo Mahmudjanov <br></br>
+`snaxcyz` nomini esa o'zimga taxallus sifatida tanlaganman.
+      <br></br>
+Tillar: O'zbek va ingliz tili (6.5)
+   <br></br>
+O'qish/Ta'lim maskani: The Management Development Institute of Singapore in Tashkent (MDIST) 
+         <br></br>
+         Faoliyatlarim haqida:
+         Namangan shahar IT school ni database yo'nalishini tamomlaganman. Database bo'yicha nima qila olaman:
+         <br></br>
+          Dasturchilik sohamning asosiy vazifasi ma’lumotni saqlash, men server va unga keladigan ma'lumotlarga javobgarman.
+          MySQL / PostgreSQL, SQLite, MongoDB, Oracle, Microsoft SQL Server kabi texnologiyalar bilan ishlay olaman   <br></br> Hozirgi kunda aynan o'zimni soham bo'yicha Raqamli hukumat loyihalarni boshqarish markazi UZINFOCOM da sinov(praktika) o'tayapman.
+             <br></br> 
+             Linux bo'yicha ham yetarlicha ma'lumotim bor (xali ham o'rganyapman) bularga Arch, ubuntu, fedora , nix lar kiradi. 
+                <br></br>
+             snaxlab.xyz (aynan shu sayt)ni soham/ishim doirasida duch kelgan turli narsalarni,tajribalarni yozish uchun ishlab chiqganman.
+
+      <br></br> Shu kungacha o'rgangan/misqollab yig'ganlarim.
+
+        </p>
+        
+      </div>
+           <div class="skill-box">
+  <div class="skill-label"><span>HTML / CSS / JS</span><span>80%</span></div>
+  <div class="bar"><div class="fill" data-width="80"></div></div>
+</div>
+
+<div class="skill-box">
+  <div class="skill-label"><span>PHP / MySQL</span><span>70%</span></div>
+  <div class="bar"><div class="fill" data-width="70"></div></div>
+</div>
+
+<div class="skill-box">
+  <div class="skill-label"><span>Linux (Arch / Ubuntu / Fedora / Nix)</span><span>65–70%</span></div>
+  <div class="bar"><div class="fill" data-width="68"></div></div>
+</div>
+
+<div class="skill-box">
+  <div class="skill-label"><span>Database (General)</span><span>70%</span></div>
+  <div class="bar"><div class="fill" data-width="70"></div></div>
+</div>
+      <!-- <h2 class="mb-4 text-2xl font-medium">Example Projects Listing</h2> -->
+      <!-- <div class="flex flex-col gap-4">
+        {projects.map((project) => <ProjectCard project={project} />)}
+      </div> -->
+    </div>
+    
+  </section>
+  
+</Layout>

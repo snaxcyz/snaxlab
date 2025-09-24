@@ -1,0 +1,434 @@
+---
+title: Suckless tools o‘rnatish, sozlash va zaxira nusxasini yaratish bo‘yicha nimadirlar
+description: 'minimalist, tezkor va engil nimadirlar yaratish, dwm, st, va dmenu kabi suckless vositalarini qanday o‘rnatish, sozlash, patch qilish va zaxiralash '
+date: 2024-10-24
+tags: ['linux', 'suckless', 'dwm', 'st', 'dmenu']
+
+image: './banner.jpg'
+authors: ['snaxcyz']
+---
+<div style={{ marginTop: '2rem', fontStyle: 'italic', color: '#888' }}>
+This post has been read <strong>{Math.floor(Math.random() * (1000 - 100 + 1) + 300)}</strong>👁️ times.
+</div>
+
+## Kirish
+
+_Suckless_ vositalari(tools) xususan `dwm`, `st` va `dmenu`.Taxminan bir yil avval `dwm`, `st` va `dmenudan` foydalangan edim, lekin ularni qanday boshqarish, sozlash yoki zaxiralashni bilmasdim
+Ularni qanday moslashtirish (patchlash) haqida ma’lumot ham yo`q (edi).
+
+Ushbu qo‘llanmada maqsadim — yo'q shunchaki o'zim uchun yozib qo'yyapman boshqalari kabi.O`rgangan narsalarim asosida yozilgan ammo mukammal emas.
+Qo‘llanmada Linux bo‘yicha asosiy nimadirlar bor deb hisoblayMAN: masalan, distributivni paket menejeri orqali dastur o‘rnatishni, kerakli kutubxonalar, va xinit orqali xorg sessiyasiga kirish.
+
+## O‘rnatish
+
+Yuqorida tilga olingan (dwm, st, dmenu) dasturlardan birontasini o‘rnatish uchun tizimingizda ba’zi kerakli kutubxonalar va git o‘rnatilgan bo‘lishi kerak. Ularni quyidagicha o‘rnatishingiz mumkin:
+
+Void Linux’da:
+
+```
+sudo xbps-install -S git make libX11-devel libXinerama-devel
+```
+
+Debian va Debian asosidagi distributivlarda:
+
+```
+sudo apt-get install build-essential libx11-dev libxinerama-dev sharutils
+```
+
+Arch va Arch asosidagi distributivlarda:
+
+```
+sudo pacman -S git make libx11 libxinerama
+```
+
+### dwm
+
+dwmni suckless.org’dan klon qilish
+
+```
+git clone https://git.suckless.org/dwm
+cd dwm/
+make
+sudo make install
+```
+
+Endi qolgan yagona narsa — quyidagi qatorni .xinitrc faylga yozish va startx buyrug‘i orqali X sessiyani ishga tushurish:
+`exec dwm`
+
+### st
+
+stni suckless.org’dan klon qilish:
+
+```
+git clone https://git.suckless.org/st
+cd st/
+make
+sudo make install
+```
+
+Eslatma:
+st odatda .desktop fayl bilan birga kelmaydi, ya’ni uni menyularda (dmenu yoki boshqa AppMenu’larda) ko‘rmaysiz/miz.
+Ammo, dwm oynali muhitida st standart terminal hisoblanadi va unga ALT + Shift + Enter orqali kirish mumkin.
+
+### dmenu
+
+dmenuni suckless.org’dan klon qilish:
+
+```
+git clone https://git.suckless.org/dmenu
+cd dmenu/
+make
+sudo make install
+```
+
+shu bilan o'rnatiladi,`Alt+p` bilan `dmenu`ni ishga tushirish mumkin.
+
+## Sozlash
+
+Hop,endi ranglarni o'zgartirish, patchlar orqali funksiyalarni qo'shish va dasturlarni o'zimizga moslashtirishni ko'ramiz
+
+Eslatma:
+Tavsiya qilinadi: `config.def.h` faylining nusxasini olib, `config.h` deb nomlang va o‘zgartirishlarni aynan shu yangi faylga kiriting. Shunda, masalan `dwm` yangilanganida, yangi `config.def.h` sizning o‘zgartirgan faylingizni ustiga yozib yubormaydi.
+
+### dvm
+
+wmni tahrirlash uchun siz dwm papkasiga kirishingiz va config.def.h faylini tahrirlashingiz kerak bo‘ladi.
+Eslatma: Kompilyatsiya qilishdan oldin config.h faylini o‘chirib tashlashlang (yuqoridagi eslatma). Quyida esa konfiguratsiya faylining ba’zi qismlari:
+
+#### Shrift va rang sxemasi
+
+config.def.h faylining 8- va 9-qatorlarida, `dwm`da ishlatiladigan shrift va shrift o‘lchamini belgilash mumkin.
+Agar `dmenu`ni alohida tahrirlamoqchi bo‘lmasangiz, u holda `dmenu`ni ishga tushirishda `dwm` tomonidan belgilanadigan parametrlar orqali shriftni sozlashingiz mumkin — bu esa 59-qatorda ko‘rsatilgan.
+
+10-chi qatordan 19-gacha esa siz quyidagi konfiguratsiyani ko‘rasiz:
+
+```
+static const char col_gray1[]       = "#222222";
+static const char col_gray2[]       = "#444444";
+static const char col_gray3[]       = "#bbbbbb";
+static const char col_gray4[]       = "#eeeeee";
+static const char col_cyan[]        = "#005577";
+static const char *colors[][3]      = {
+	/*               fg         bg         border   */
+	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
+	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
+};
+```
+
+10-chi qatordan 15-gacha bo‘lgan qatorlarda `char` (belgilar) turidagi ayrim konstantalar e’lon qilingan.
+Bular — olti xil rang bo‘lib, ularni xohlagancha o‘zgartirishingiz mumkin. Hattoki, ularning nomlarini ham.
+Masalan, quyidagicha:
+
+```
+static const char normalbg[]       = "#0ff000";
+```
+
+Keyin esa, 17- va 18-qatorlarda, siz/biz bu yuqorida belgilangan rang konstantalarini `SchemeNorm` va `SchemeSel` deb nomlangan sxemalarga ulab qo‘yasiz/miz.
+Bu sxemalar colors massivida aniqlanadi.
+Quyidagicha:
+
+```
+[SchemeNorm] = { fg, bg, border },
+[SchemeSel]  = { fg, bg, border },
+```
+
+xoxlagancha o'zgartirib,so‘ngra quyidagicha qayta kompilyatsiya va o‘rnatish qiling:
+
+```
+sudo make clean install
+```
+
+dwm sessiyasidan chiqib, qayta kirishingiz kerak — shunda o‘zgartirishlaringiz kuchga kiradi.
+
+#### Qoidalar (Rules)
+
+30–31-qatorlarda `gimp` va `Firefox` uchun yozilgan ba’zi qoidalarni ko‘rish mumkin:
+
+```
+/* class      instance    title       tags mask     isfloating   monitor */
+{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
+{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+```
+
+bu yerga boshqa dasturlar uchun ham qoidalar yozishingiz yoki borini olib tashlash mumkin.
+Qanday ishlaydi:
+
+    class — bu dastur klassi (nomi), masalan "Gimp" yoki "Firefox".
+
+    instance va title — ko‘pincha NULL deb qoldiriladi.
+
+    isfloating — agar 1 deb belgilansa, dasturni floatingda  ochadi. 0 bo‘lsa, tiled rejimda.
+
+    monitor — qaysi monitor(da) ochilishini belgilaydi. -1 bo‘lsa, istalgan monitor.
+
+Tag mask (teglarga tayinlash)
+Murakkab qism.
+tags mask — bu bitwise operatorlardan foydalangan holda aniqlanadi.
+
+Misol uchun, agar Firefoxni 9-tegda ochmoqchi bo‘linsa, `1 << 8` deb yoziladi:
+
+` 1 << 8` degani: 1 ni 8 pozitsiyaga chapga siljitish – bu 100000000 degani, ya’ni 9-tag.
+
+    Teglar odatda bitlar sifatida qaraladi: 000000001, 000000010, 000000100, ...bla bla bla ble nima bu wtf  xullas
+
+Ya’ni:
+
+    ```
+    1 << 0 → tag 1 (eng o‘ngda)
+
+    1 << 1 → tag 2
+
+    1 << 2 → tag 3
+
+    ...
+
+    1 << 8 → tag 9 (eng chapda)
+
+```
+Misol: Emacs’ni 3-tegda va floating rejimda ochish
+
+```
+
+{ "Emacs", NULL, NULL, 1 << 2, 1, -1 },
+
+````
+Bu `Emacs`sni:
+
+   3-tegda (```1 << 2 = 000000100```)
+
+    floating rejimda
+
+    har qanday monitor(da) ``(-1)`` ochad
+
+#### Tugma birikmalari (Keybindings)
+
+Men bu qo‘llanmada tugma birikmalarini (hotkeys)ni yozmayman, `sxhkd` (Simple X Hotkey Daemon)ishlataman.
+Ammo agar  `dwm`ning o‘zida tugma birikmalarini sozlamoqchi bo‘lsanglar, yoki faqat bir nechta standart tugmalarni o‘zgartirmoqchi "bo‘lsangiz",  46-chi qatoridan 96-gacha qarab chiqing,uncha qiyinmas.Maslahat `sxhkd` ishlatinglar
+
+
+### st
+
+Simple Terminal (st) — tez ishlaydi,mening fikrimcha, shriftlarni chiroyli chiqarishda Alacritty’dan keyin turadi.
+Biroq, standart holatda st'da ba’zi asosiy funksiyalar yo‘q,demak "Patching" ga yuzlanamiz.
+Oddiy sozlamalar, ya’ni tugma birikmalari (keybindings) va rang sxemalarini (color scheme) o‘zgartirmoqchi bo‘lsangiz — bu jarayon `dwm` bilan bir xil:
+1. st papkasiga kiring
+
+2. `config.def.h` faylini tahrirlang
+
+3. `config.h` faylini o‘chirib tashlang (agar mavjud bo‘lsa)
+
+4. Yangi sozlamalar kuchga kirishi uchun qayta kompilyatsiya qiling
+
+#### Shrift (Font) va Padding
+Agar `st` terminalining shriftini va padding sozlamasini o‘zgartirmoqchi bo‘lsangiz, 8- va 9-qatorlarni tahrirlaysiz.
+
+Masalan,shriftni Hack, o‘lchamini 14 piksel, va paddingni 8 piksel qilishni istasangiz, quyidagicha yozasiz:
+```
+static char *font = "Hack:pixelsize=14:antialias=true:autohint=true";
+static int borderpx = 8;
+```
+#### Rang sxemasi (Color-scheme)
+Agar `st`ning standart rang sxemasini o‘zgartirmoqchi bo‘lsangiz, 86-qatoridan 112-qatorigacha bo‘lgan joyni tahrirlashingiz kerak:
+```
+static const char *colorname[] = {
+	/* 8 normal colors */
+	"black",
+	"red3",
+	"green3",
+	"yellow3",
+	"blue2",
+	"magenta3",
+	"cyan3",
+	"gray90",
+
+	/* 8 bright colors */
+	"gray50",
+	"red",
+	"green",
+	"yellow",
+	"#5c5cff",
+	"magenta",
+	"cyan",
+	"white",
+
+	[255] = 0,
+
+	/* more colors can be added after 255 to use with DefaultXX */
+	"#cccccc"
+	"#555555",
+};
+```
+Istalgancha o'zgartirishga mumkin.
+
+#### Kursor shakli (Cursor Shape)
+`st` terminalida quyidagi 4 xil kursor shakli mavjud:
+```
+/*
+ * 2: Block ("█")
+ * 4: Underline ("_")
+ * 6: Bar ("|")
+ * 7: Snowman ("☃")
+ */
+ ```
+
+ Kursor shaklini o‘zgartirish uchun 131-qatorni tahrirlab, kerakli raqamni kiritish kerak. Misol:
+ ```
+ static unsigned int cursorshape = 2;
+ ```
+yoki:
+```
+static unsigned int cursorshape = 6;
+```
+
+### dmenu
+
+`suckless` dasturlarida bo‘lgani kabi, `dmenu`ni sozlash ham `config.def.h` faylini tahrirlash, `config.h` faylini o‘chirish va qayta kompilyatsiya qilish orqali amalga oshiriladi.
+
+`dmenu` — bu juda oddiy va moslashuvchan dastur bo‘lib, undan juda ko‘p narsa uchun foydalanish mumkin. Men uni quyidagilar uchun ishlataman:
+
+    1. Fon (wallpaper) o‘rnatish
+
+    2. monitorlar holatini o‘zgartirish
+
+    3. quvvat menyusi (power-menu)
+
+    bla bla bla ....boshqa nimadirlar
+
+boshlasak
+
+ Eslatma!
+
+Agar `dwm` ichida `dmenu`ning o‘zingiz sozlagan (custom build) versiyasini ishlatmoqchi bo‘lsangiz, `dwm/config.def.h` faylida quyidagi qatorni o‘zgartirishingiz kerak:
+```
+static const char *dmenucmd[] = {
+    "dmenu_run", "-m", dmenumon,
+    <"-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4,>
+    NULL
+};
+```
+tepadagi qatorda `< >` ichidagi qismlar o‘chirilishi kerak. Ya’ni, siz bu joylarni `dmenu`ning o‘zida sozlaysiz, `dwm` ichida emas.
+
+#### Shrift (Font) va Rang sxemasi (Color-scheme)
+
+ Shriftni o‘zgartirish:
+
+7-qatorga boring va shrift nomini istaganingizga o‘zgartiring:
+```
+"monospace:size=10"
+```
+masalan menga yoqadigan Hack shrifti uchun:
+```
+"Hack:size=12"
+```
+Ranglarni o‘zgartirish:
+
+Bu yerda ranglar *colors massivida belgilanadi, `dvm` dagidek emas:
+```
+[SchemeNorm] = { "#bbbbbb", "#222222" }, // Oddiy holat (Normal)
+[SchemeSel]  = { "#eeeeee", "#005577" }, // Tanlangan (Selected)
+[SchemeOut]  = { "#000000", "#00ffff" }  // Tashqi chiqish (Output)
+```
+
+1. Har bir qatordagi birinchi rang — matn (foreground),
+
+2. ikkinchi rang — fon (background).
+
+🎥 Qo‘shimcha tavsiya:
+
+Agar `dmenu` haqida chuqurroq tushunmoqchi bo‘lsangiz, Luke Smith’ning videolarini ko‘rishni tavsiya qilamam.O`zim ha o'sha yerdan o'rganganman.
+
+## Patching — Tuzatmalar
+(o'zimcha shunaqa tarjima qildim)
+
+Tuzatmalar (patches) yordamida `suckless` vositalariga ularning standartda mavjud bo‘lmagan imkoniyatlarini qo‘shishingiz mumkin. Masalan, `st` terminalida orqaga aylantirish (scrollback) yoki `dwm`da gaps.
+
+### Patch qo‘llash tartibi:
+
+    1. suckless.org saytidan kerakli patch’ni yuklab olish.
+
+    2. Patch faylini mos dastur manba (source-code) papkasiga joylashtirish.
+
+    3,. Terminalda quyidagi buyruqlarni bajarish:
+
+    ```
+    sudo make clean
+    git remove config.h
+    git branch <patch_nomi>.def
+    git checkout <yangi_branch_nomi>
+    patch -p1 < <patch_nomi>.diff
+```
+Agar barcha `hunk`lar ishlasa, keyingi qadamlar:
+```
+git status # o‘zgarishlar ro‘yxatini tekshiring
+git add <o‘zgargan_fayllar>
+git commit -m "Patched with <patch_nomi>"
+git checkout master
+git merge <yangi_branch_nomi>
+make
+sudo make install
+```
+Lekin menda birinchi safar `hunk` ishlamagan,shunda nima qilish kerak?
+Terminal xatolik haqida qaysi faylga patch qo‘llanmaganini ko‘rsatadi.
+
+Shu fayl ichida .rej fayli hosil bo‘ladi.
+
+.rej faylini oching.
+
+- bilan boshlangan qatorlar — o‘chirilishi kerak, + bilan boshlanganlar — qo‘shilishi kerak.
+
+Qo‘lda o‘zgartiring, keyin yuqoridagilarni qayta kiriting.
+
+Patchni remove qilish:
+
+Agar ilgari qo‘llagan patchni olib tashlamoqchi bo‘lsangiz:
+```
+patch -R < <patch_nomi>.diff
+```
+
+Qo‘shimcha ma’lumot:
+
+    suckless.orgdagi Hacking sahifasida — patchlar haqida ko‘proq o‘rganish mumkin.
+
+    DistroTube’ning dmenu patchlash bo‘yicha videosi ham yaxshi manba.
+
+
+## Zaxira nusxa olish (Backup)
+Suckless vositalarini sozlaganingizdan keyin, oddiy `.config` faylini `git`ga yuklashdek oson EMAS, ayniqsa patchlar qo‘llagan keyin. Ammo yo'li bor)
+ ### Git sozlamasi:
+    1. Ishlayotgan papkangizda (masalan dwm/, st/ yoki dmenu/) quyidagini bajaring:
+    ```
+    git remote rename origin upstream
+```
+    Bu sizning asosiy manbangizni (upstream) sifatida suckless.org’ga bog‘laydi.
+
+    2. Github (yoki Gitlab) da yangi repozitoriya yarating. Nomini `dwm`, `st` yoki `dmenu` deb qo‘ying.
+
+    3. Repozitoriyaning URL manzilini oling va quyidagicha qo‘shing:
+    ```
+    git remote add origin <sizning repozitoriyangiz URL manzili>
+```
+4. endi tekrish kerak:
+
+Sizda quyidagilar bo‘lishi kerak:
+```
+upstream    https://git.suckless.org/dwm (fetch)
+origin      https://github.com/username/dwm.git (push)
+```
+5. Endi sozlagan va patch qo‘shgan holatingizni master branchga yuklang:
+```
+git push origin master
+```
+
+
+### Yangilanishlarni olish:
+
+Agar suckless loyihasi yangilansa, siz uni quyidagicha olishingiz mumkin:
+```
+git pull upstream master
+```
+
+## Yakuniy fikr
+
+ YO'Q
+
+Ishlamadimi? bilmadim menda ishladi)
