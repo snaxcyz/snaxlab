@@ -1,0 +1,424 @@
+---
+title: Appolon oy missiyasining boshqaruv dasturi haqida
+description: '4kb haqida'
+date: 2025-09-28
+tags: ['engineering']
+authors: ['snaxcyz']
+---
+
+Apollon-11 dasturida uchgan Nil Armstrongni hamma tanisa kerak, uni oyga qadam qo'yganda aytgan gapi bor
+
+ - *Bu inson uchun kichik bir qadam, lekin butun insoniyat uchun ulkan sakrashdir* 
+ 
+  va yana *"Omad tilayman janob Gorskiy"* deb ham aytgan. Qizig'i shunda ediku butun kosmonavtika tarixida bunday odam yo'q edi, keyinchalik Armstrongni o'zidan bu gapni izohini so'rashganda shunday javob beradi:
+
+  - Bolaligimda do'stlarim bilan beysbol o'ynayotganimda, to'p Gorskiy ismli qo'shnimni uyiga yotoqxona derazasi oldiga tushib qoladi,to'pni olish uchun derazaga borgan paytim miss Gorskiy xonim(xotini) eriga baqirayotgan edi
+   "oral seks xohlayapsanmi? Qo'shni bola oyda yursagina bunga erisha olasan"
+
+
+   ## Kirish
+
+   Bu post Nil Armstrong haqida emas, oy missiyasining o'zi haqida
+
+Urush tugaganudan so'ng, sovet hukumati va amerika qo'shma shtatlari orasida har tomonlaman poyga ketadi, qurol,atom,texnologik...
+1961-yil 12-aprel Sovet ittifoqi fazoga ilk parvozni amalga oshira oladi. Aynan shu yilning 25-may kunida NASA oy missiyasi Appolo programmasini boshlaydi.
+
+
+Apollo programmasida muhim ro'l o'ynagan o'nglab,yuzlab odamlar bor, bu shulardan biri Margaret Hamilton va uning missiyadagi katta o'rni haqida
+
+## Margaret Hamilton
+ Margaret opam 1976-yil 17-avgustda tavvalud topgan, maydalashmasdan asosiy narsaga o'taman. Margaret Hamilton Massachusetts Texnologiya Instituti(MIT)dagi Dasturiy Injineriya bo‘limini boshqargan.
+ Appolo missiyasida uning hissasi katta edi chunki butun oy missyasi uchun parvoz dasturiy ta'minotini Margaret opam ishlab chiqgan edi.(boshqaruv komputer)
+ Aynan meni dasturiy injinerlikda motiv bergan ham shu oy missiyasi hisoblanadi, nimaga deyayotgan bo'lsanglar, Margaret Hamiltonning Appolo missiyasi uchun yozgan dasturi 72kb ROM va 4kb RAM ga ega bo'lgan xolos.
+ Masalan hozirda telefondan birorta ilova ochish 100-300mb RAM sarflaydi. 
+
+ ## Dasturiy ta'minot haqida
+  Margaret Hamilton yozgan dastur bu oddiy kod emas balki, u real vaqt rejimida ishlaydigan, boshqaruvi yuqori bo'lgan, xatolikni tik lay oladigan subsistemalardan iborat edi.
+
+  ### Asinxron mexanizmi va prioritetlari (interrupt)
+  AGC(Apollo Guidance Computer) bir vaqtda bir nechta vazifalarni bajarishi kerak bo‘lgan — navigatsiya, yo‘nalish hisoblash,butun sistema ustidan nazorat va undan tashqari foydalanuvchi buyruqlar va hk
+
+### Parvozdagi dasturiy ta’minot
+
+Ushbu dasturiy ta’minot kosmik kemaning navigatsiyasi, qo‘nish (landing) va boshqa muhim operatsiyalarni boshqarish vazifasini bajargan.
+
+### Load shedding(resurslarni ozod qilish) strategiyasi
+
+Agar dasturiy ta'minotga haddan ziyod bosim bo'lsa, ma'lumotlarni qayta ishlash va kerak bo'lsa ba'zi jarayonlarni to'xtatish/ishlashini kechiktirish yoki skip qilish kabi narsalar o'ylab qo'yilgan edi. Parvoz davomida 1201 va 1202 signal xatolari yuzaga keladi.
+Astronavtlar qo‘nish bosqichida rendezvous radarini yoqishgan. Radar qo‘nish uchun zarur emas edi, ammo qoidaga ko'ra shunday qilish kerak edi. Radar yoqilgandagi jarayon dasturiy ta'minot resurslari tugashiga olib kelgan ularda atigi 72 va 4kb bor edi xolos. Margaret dasturda bo'lishi mumkin bo'lgan har qanday holatlarni hisoblab chiqgan va chorasini ko'rib qo'ygandi, qisqa soniyalarda dasturiy ta'minot radar funksiyasini skip qilib yuborib asosoiy jarayon boshqaruvini qo'lga oladi, agar dasturiy ta'minot holatni aniqlab uni bartaraf etmaganda, butun ekipaj oyga birinchi bo'lib sanchilib qolgan odamlar bo'lishardi.
+
+## Assembler
+
+Assembler oy missiyasi shu dasturlash tilida yozilgan. NASA va MIT Apollo-11 da ishlatilgan butun dasturiy taminoy kodlarini shunchaki chiqarib yuboradi, hozirda githubdan topishingiz mumkin.
+Masalan qo'nish jarayoni uchun yozilgan kod mana bunday:
+
+```  
+BANK	32
+		SETLOC	F2DPS*32
+		BANK
+
+		EBANK=	E2DPS
+
+#	*************************************
+#	P63: THE LUNAR LANDING, BRAKING PHASE
+#	*************************************
+
+		COUNT*	$$/P63
+
+P63LM		TC	PHASCHNG
+		OCT	04024
+
+		TC	BANKCALL	# DO IMU STATUS CHECK ROUTINE R02
+		CADR	R02BOTH
+
+		CAF	P63ADRES	# INITIALIZE WHICH FOR BURNBABY
+		TS	WHICH
+
+		CAF	DPSTHRSH	# INITIALIZE DVMON
+		TS	DVTHRUSH
+		CAF	FOUR
+		TS	DVCNTR
+
+		CS	ONE		# INITIALIZE WCHPHASE AND FLPASS0
+		TS	WCHPHASE
+
+		CA	ZERO
+		TS	FLPASS0
+
+		CS	BIT14
+		EXTEND
+		WAND	CHAN12		# REMOVE TRACK-ENABLE DISCRETE.
+
+FLAGORGY	TC	INTPRET		# DIONYSIAN FLAG WAVING
+		CLEAR	CLEAR
+			NOTHROTL
+			REDFLAG
+		CLEAR	SET
+			LRBYPASS
+			MUNFLAG
+		CLEAR	CLEAR
+			P25FLAG		# TERMINATE P25 IF IT IS RUNNING.
+			RNDVZFLG	# TERMINATE P20 IF IT IS RUNNING
+
+					# ********************************
+
+IGNALG		SETPD	VLOAD		# FIRST SET UP INPUTS FOR RP-TO-R:-
+# Page 786
+			0		#   AT 0D LANDING SITE IN MOON FIXED FRAME
+			RLS		#   AT 6D ESTIMATED TIME OF LANDING
+		PDDL	PUSH		#   MPAC NON-ZERO TO INDICATE LUNAR CASE
+			TLAND
+		STCALL	TPIP		# ALSO SET TPIP FOR FIRST GUIDANCE PASS
+			RP-TO-R
+		VSL4	MXV
+			REFSMMAT
+		STCALL	LAND
+			GUIDINIT	# GUIDINIT INITIALIZES WM AND /LAND/
+		DLOAD	DSU
+			TLAND
+			GUIDDURN
+		STCALL	TDEC1		# INTEGRATE STATE FORWARD TO THAT TIME
+			LEMPREC
+		SSP	VLOAD
+			NIGNLOOP
+			40D
+			UNITX
+		STOVL	CG
+			UNITY
+		STOVL	CG +6
+			UNITZ
+		STODL	CG +14
+			99999CON
+		STOVL	DELTAH		# INITIALIZE DELTAH FOR V16N68 DISPLAY
+			ZEROVECS
+		STODL	UNFC/2		# INITIALIZE TRIM VELOCITY CORRECTION TERM
+			HI6ZEROS
+		STORE	TTF/8
+
+IGNALOOP	DLOAD
+			TAT
+		STOVL	PIPTIME1
+			RATT1
+		VSL4	MXV
+			REFSMMAT
+		STCALL	R
+			MUNGRAV
+		STCALL	GDT/2
+			?GUIDSUB	# WHICH DELIVERS N PASSES OF GUIDANCE
+
+# DDUMCALC IS PROGRAMMED AS FOLLOWS:-
+#                                         2                                           ___
+#              (RIGNZ - RGU )/16 + 16(RGU  )KIGNY/B8 + (RGU - RIGNX)KIGNX/B4 + (ABVAL(VGU) - VIGN)KIGNV/B4
+#                          2             1                 0
+#	DDUM = -------------------------------------------------------------------------------------------
+#                                                10
+#                                               2   (VGU - 16 VGU KIGNX/B4)
+#                                                       2        0
+# Page 787 new page is actually one line earlier but this would put the indices on a separate line
+# disconnected from their respective variables
+# THE NUMERATOR IS SCALED IN METERS AT 2(28).  THE DENOMINATOR IS A VELOCITY IN UNITS OF 2(10) M/CS.
+# THE QUOTIENT IS THUS A TIME IN UNITS OF 2(18) CENTISECONDS.  THE FINAL SHIFT RESCALES TO UNITS OF 2(28) CS.
+# THERE IS NO DAMPING FACTOR.  THE CONSTANTS KIGNX/B4, KIGNY/B8 AND KIGNV/B4 ARE ALL NEGATIVE IN SIGN.
+
+DDUMCALC	TS	NIGNLOOP
+		TC	INTPRET
+		DLOAD	DMPR		# FORM DENOMINATOR FIRST
+			VGU
+			KIGNX/B4
+		SL4R	BDSU
+			VGU +4
+		PDDL	DSU
+			RIGNZ
+			RGU +4
+		SR4R	PDDL
+			RGU +2
+		DSQ	DMPR
+			KIGNY/B8
+		SL4R	PDDL
+			RGU
+		DSU	DMPR
+			RIGNX
+			KIGNX/B4
+		PDVL	ABVAL
+			VGU
+		DSU	DMPR
+			VIGN
+			KIGNV/B4
+		DAD	DAD
+		DAD	DDV
+		SRR
+			10D
+
+		PUSH	DAD
+			PIPTIME1
+		STODL	TDEC1		# STORE NEW GUESS FOR NEXT INTEGRATION
+		ABS	DSU
+			DDUMCRIT
+		BMN	CALL
+			DDUMGOOD
+			INTSTALL
+		SET	SET
+			INTYPFLG
+			MOONFLAG
+		DLOAD
+			PIPTIME1
+		STOVL	TET		# HOPEFULLY ?GUIDSUB DID NOT
+			RATT1		#   CLOBBER RATT1 AND VATT1
+# Page 788
+		STOVL	RCV
+			VATT1
+		STCALL	VCV
+			INTEGRVS
+		GOTO
+			IGNALOOP
+
+DDUMGOOD	SLOAD	SR
+			ZOOMTIME
+			14D
+		BDSU
+			TDEC1
+		STOVL	TIG		# COMPUTE DISTANCE LANDING SITE WILL BE
+			V		#   OUT OF LM'S ORBITAL PLANE AT IGNITION:
+		VXV	UNIT		#   SIGN IS + IF LANDING SITE IS TO THE
+			R		#   RIGHT, NORTH; - IF TO THE LEFT, SOUTH.
+		DOT	SL1
+			LAND
+R60INIT		STOVL	OUTOFPLN	# INITIALIZATION FOR CALCMANU
+			UNFC/2
+		STORE	R60VSAVE	# STORE UNFC/2 TEMPORARILY IN R60SAVE
+		EXIT
+					# *******************************************
+
+IGNALGRT	TC	PHASCHNG	# PREVENT REPEATING IGNALG
+		OCT	04024
+
+ASTNCLOK	CS	ASTNDEX
+		TC	BANKCALL
+		CADR	STCLOK2
+		TCF	ENDOFJOB	# RETURN IN NEW JOB AND IN EBANK FIVE
+
+ASTNRET		TC	INTPRET
+		SSP	RTB		# GO PICK UP DISPLAY AT END OF R51:
+			QMAJ		#   "PROCEED" WILL DO A FINE ALIGNMENT
+		FCADR	P63SPOT2	#   " ENTER " WILL RETURN TO P63SPOT2
+			R51P63
+P63SPOT2	VLOAD	UNIT		# INITIALIZE KALCMANU FOR BURN ATTITUDE
+			R60VSAVE
+		STOVL	POINTVSM
+			UNITX
+		STORE	SCAXIS
+		EXIT
+
+		CAF	EBANK7
+		TS	EBANK
+
+		INHINT
+		TC	IBNKCALL
+		CADR	PFLITEDB
+# Page 789
+		RELINT
+
+		TC	BANKCALL
+		CADR	R60LEM
+
+		TC	PHASCHNG	# PREVENT RECALLING R60
+		OCT	04024
+
+P63SPOT3	CA	BIT6		# IS THE LR ANTENNA IN POSITION 1 YET
+		EXTEND
+		RAND	CHAN33
+		EXTEND
+		BZF	P63SPOT4	# BRANCH IF ANTENNA ALREADY IN POSITION 1
+
+		CAF	CODE500		# ASTRONAUT:	PLEASE CRANK THE
+		TC	BANKCALL	#		SILLY THING AROUND
+		CADR	GOPERF1
+		TCF	GOTOPOOH	# TERMINATE
+		TCF	P63SPOT3	# PROCEED	SEE IF HE'S LYING
+
+P63SPOT4	TC	BANKCALL	# ENTER		INITIALIZE LANDING RADAR
+		CADR	SETPOS1
+
+		TC	POSTJUMP	# OFF TO SEE THE WIZARD...
+		CADR	BURNBABY
+
+#	---------------------------------
+
+#	CONSTANTS FOR P63LM AND IGNALG
+
+P63ADRES	GENADR	P63TABLE
+
+ASTNDEX		=	MD1		# OCT 25:  INDEX FOR CLOKTASK
+
+CODE500		OCT	00500
+
+99999CON	2DEC	30479.7 B-24
+
+GUIDDURN	2DEC	+66440		# GUIDDURN	+6.64400314 E+2
+DDUMCRIT	2DEC	+8 B-28		# CRITERION FOR IGNALG CONVERGENCE
+
+# Page 790
+#	--------------------------------
+
+# Page 791
+#	*************************
+#	P68: LANDING CONFIRMATION
+#	*************************
+
+		BANK	31
+		SETLOC	F2DPS*31
+		BANK
+
+		COUNT*	$$/P6567
+
+LANDJUNK	TC	PHASCHNG
+		OCT	04024
+
+		INHINT
+		TC	BANKCALL	# ZERO ATTITUDE ERROR
+		CADR	ZATTEROR
+
+		TC	BANKCALL	# SET 5 DEGREE DEADBAND
+		CADR	SETMAXDB
+
+		TC	INTPRET		# TO INTERPRETIVE AS TIME IS NOT CRITICAL
+		SET	CLEAR
+			SURFFLAG
+			LETABORT
+		SET	VLOAD
+			APSFLAG
+			RN
+		STODL	ALPHAV
+			PIPTIME
+		SET	CALL
+			LUNAFLAG
+			LAT-LONG
+		SETPD	VLOAD		# COMPUTE RLS AND STORE IT AWAY
+			0
+			RN
+		VSL2	PDDL
+			PIPTIME
+		PUSH	CALL
+			R-TO-RP
+		STORE	RLS
+		EXIT
+		CAF	V06N43*		# ASTRONAUT:  NOW LOOK WHERE YOU ENDED UP
+		TC	BANKCALL
+		CADR	GOFLASH
+		TCF	GOTOPOOH	# TERMINATE
+		TCF	+2		# PROCEED
+		TCF	-5		# RECYCLE
+
+		TC	INTPRET
+# Page 792
+		VLOAD			# INITIALIZE GSAV AND (USING REFMF)
+			UNITX		#   YNBSAV, ZNBSAV AND ATTFLAG FOR P57
+		STCALL	GSAV
+			REFMF
+		EXIT
+
+		TCF	GOTOPOOH	# ASTRONAUT:  PLEASE SELECT P57
+
+V06N43*		VN	0643
+```
+
+bu yerda qarasangiz(agar assemblerni bilsangiz) kod qanday ishlashini ko'ra olasiz.
+
+masalan asosiy narsalardan bir bu: `P63: THE LUNAR LANDING, BRAKING PHASE` bu Oyga qo‘nishda tormozlash (braking) fazasi uchun ishlatilgan.
+### Hisoblash jarayonlari uchun: IGNALG va DDUMCALC bloklari
+1. Raketa tezligi (VGU)
+
+2. Raketa pozitsiyasi (RGU)
+
+3. Gravitatsiya va tuzatish konstantalari (KIGNX, KIGNY, KIGNV)
+
+4. Natijada DDUM (tuzatuvchi vaqt parametri) hisoblanadi. 
+### Astronavt interfeysi
+
+P63SPOT3 va CODE500
+
+antenna noto‘g‘ri holatda bo‘lsa, astronavtga xabar chiqarilgan:
+`ASTRONAUT: PLEASE CRANK THE SILLY THING AROUND` ya'ni "Astronavt, antennani aylantiring”
+
+### P63SPOT4
+
+Bu kod qo‘nish radari ishga tushirgan  BURNBABY deb nomlangan asosiy dvigatel yonishi boshlangan
+
+### Qo'nish bosqichi 
+P63 jarayoni tugagach, P68 dasturi ishga tushirilgan,Bu qo‘nishni tasdiqlash bosqichi.
+
+1. Attitude error (yo‘nalish xatosi) nolga tenglashtiriladi.
+
+2. Deadband 5° qilib o‘rnatiladi.
+
+3. Oy yuzasidagi yakuniy joylashuv va koordinatalar hisoblanadi.
+
+4. Astronavtga V06N43 kodi ko‘rsatilgan:
+
+“NOW LOOK WHERE YOU ENDED UP”
+
+Aynan tepadagi kod yordamida Appolo-11 va astronavtlar oyga qo'na olgan. Margaret Hamilton esa bu dasturiy ta'minoti bilan tarixga kirgan, opaga respect 
+
+
+
+<img 
+  src="https://upload.wikimedia.org/wikipedia/commons/d/db/Margaret_Hamilton_-_restoration.jpg"
+  width="300"
+  height="400"
+  style={{ borderRadius: '12px' }}
+/>
+Bu rasmda Margaret Hamilton va Appolo missiyasi dastur kodlarini
+
+<img 
+  src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Agc_view.jpg/1920px-Agc_view.jpg"
+  width="300"
+  height="400"
+  style={{ borderRadius: '12px' }}
+/>  Missiyada ishlatildan AGC(Apollo Guidance Computer)
+
+<img 
+  src="https://upload.wikimedia.org/wikipedia/commons/f/fb/Agc_rope.jpg"
+  width="300"
+  height="400"
+  style={{ borderRadius: '12px' }}
+/>  Bu esa o'sha 72kblik ROM xotira 
