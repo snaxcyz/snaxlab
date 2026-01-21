@@ -1,0 +1,125 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PostHead from '@/components/PostHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import {
+  getAdjacentPosts,
+  getAllPostsAndSubposts,
+  getParentPost,
+  getPostReadingTime,
+  isSubpost,
+  parseAuthors,
+} from '@/lib/data-utils'
+import { cn, formatDate } from '@/lib/utils' // formatDate qo'shildi
+import { getCollection, render } from 'astro:content'
+
+export async function getStaticPaths() {
+  const posts = await getAllPostsAndSubposts()
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: post,
+  }))
+}
+
+const post = Astro.props
+const currentPostId = Astro.params.id
+const { Content, headings } = await render(post)
+const authors = await parseAuthors(post.data.authors ?? [])
+
+const isCurrentSubpost = isSubpost(currentPostId)
+const navigation = await getAdjacentPosts(currentPostId)
+const parentPost = isCurrentSubpost ? await getParentPost(currentPostId) : null
+
+const postReadingTime = await getPostReadingTime(currentPostId)
+
+// --- change lang ahh code ---
+const { lang, translationId } = post.data
+const allBlogPosts = await getCollection('blog')
+
+const uzVersion =
+  lang === 'uz'
+    ? post
+    : allBlogPosts.find(
+        (p) => p.data.translationId === translationId && p.data.lang === 'uz',
+      )
+const enVersion =
+  lang === 'en'
+    ? post
+    : allBlogPosts.find(
+        (p) => p.data.translationId === translationId && p.data.lang === 'en',
+      )
+
+const uzUrl = uzVersion ? `/blog/${uzVersion.id}` : null
+const enUrl = enVersion ? `/blog/${enVersion.id}` : null
+---
+
+<Layout>
+  <PostHead slot="head" post={post} />
+
+  <section
+    class="grid grid-cols-[minmax(0px,1fr)_min(calc(var(--breakpoint-md)-2rem),100%)_minmax(0px,1fr)] gap-y-10 py-8"
+  >
+    <div class="col-start-2 flex items-center justify-between gap-4">
+      <Breadcrumbs
+        items={[
+          { href: '/blog', label: 'Blog', icon: 'lucide:library-big' },
+          {
+            href: `/blog/${currentPostId}`,
+            label: post.data.title,
+            icon: 'lucide:book-open-text',
+          },
+        ]}
+      />
+
+      <div
+        class="border-border bg-secondary/20 flex shrink-0 items-center gap-1 rounded-full border p-1"
+      >
+        <a
+          href={uzUrl || '#'}
+          class={cn(
+            'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
+            lang === 'uz'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : uzUrl
+                ? 'hover:bg-secondary text-muted-foreground'
+                : 'opacity-30 cursor-not-allowed',
+          )}>UZ</a
+        >
+        <a
+          href={enUrl || '#'}
+          class={cn(
+            'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
+            lang === 'en'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : enUrl
+                ? 'hover:bg-secondary text-muted-foreground'
+                : 'opacity-30 cursor-not-allowed',
+          )}>EN</a
+        >
+      </div>
+    </div>
+
+    <header class="col-start-2 flex flex-col gap-y-4 text-center">
+      <h1 class="text-4xl leading-tight font-bold sm:text-5xl">
+        {post.data.title}
+      </h1>
+      <div
+        class="text-muted-foreground flex items-center justify-center gap-x-4 text-sm"
+      >
+        <time datetime={post.data.date.toISOString()}
+          >{formatDate(post.data.date)}</time
+        >
+        <span>•</span>
+        <span>{postReadingTime}</span>
+      </div>
+    </header>
+
+    <hr class="border-border col-start-2" />
+
+    <article
+      class="prose prose-invert prose-headings:scroll-mt-28 prose-p:leading-relaxed col-start-2 max-w-none"
+    >
+      <Content />
+    </article>
+  </section>
+</Layout>

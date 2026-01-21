@@ -1,0 +1,93 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import Link from '@/components/Link.astro'
+import { getCollection } from 'astro:content'
+import { formatDate } from '@/lib/utils'
+
+const posts = await getCollection('blog', ({ data }) => !data.draft)
+const items = posts
+  .map((p) => ({
+    id: p.id,
+    title: p.data.title,
+    description: p.data.description ?? '',
+    date: p.data.date,
+    tags: p.data.tags ?? [],
+    href: `/blog/${p.id}/`,
+  }))
+  .sort((a, b) => b.date.valueOf() - a.date.valueOf())
+---
+
+<Layout class="max-w-3xl">
+  <div class="flex flex-col gap-4">
+    <h1 class="text-2xl font-semibold tracking-tight">Search</h1>
+    <p class="text-muted-foreground">
+      Type to filter posts by title, description, or tags. Tip: press <kbd class="rounded border px-1">/</kbd> to focus.
+    </p>
+
+    <div class="sticky top-3 z-10 rounded-lg border bg-background/70 p-3 backdrop-blur">
+      <input
+        id="q"
+        type="search"
+        autocomplete="off"
+        placeholder="Search posts…"
+        class="w-full rounded-md border bg-background px-3 py-2 outline-none focus:ring-2 focus:ring-ring"
+      />
+    </div>
+
+    <div id="results" class="flex flex-col gap-3"></div>
+  </div>
+
+  <script is:inline define:vars={{ data: items }}>
+const input = document.getElementById('q');
+    const results = document.getElementById('results');
+
+    const render = (list) => {
+      if (!results) return;
+      if (!list.length) {
+        results.innerHTML = '<p class="text-muted-foreground">No matches.</p>';
+        return;
+      }
+      results.innerHTML = list.map((p) => {
+        const tags = (p.tags || []).map((t) => `<span class="rounded border px-2 py-0.5 text-xs text-muted-foreground">${t}</span>`).join('');
+        return `
+          <article class="group rounded-lg border p-4 transition hover:bg-muted/30">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <h2 class="truncate text-base font-semibold">
+                  <a class="outline-none group-hover:underline" href="${p.href}">${p.title}</a>
+                </h2>
+                ${p.description ? `<p class="mt-1 line-clamp-2 text-sm text-muted-foreground">${p.description}</p>` : ''}
+                ${tags ? `<div class="mt-3 flex flex-wrap gap-2">${tags}</div>` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    };
+
+    const normalize = (s) => (s || '').toString().toLowerCase();
+    const filter = () => {
+      const q = normalize(input?.value).trim();
+      if (!q) return render(data);
+      const words = q.split(/\s+/).filter(Boolean);
+      const out = data.filter((p) => {
+        const hay = normalize(p.title) + ' ' + normalize(p.description) + ' ' + normalize((p.tags || []).join(' '));
+        return words.every((w) => hay.includes(w));
+      });
+      render(out);
+    };
+
+    render(data);
+    input?.addEventListener('input', filter);
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== input) {
+        e.preventDefault();
+        input?.focus();
+      }
+      if (e.key === 'Escape') {
+        input?.blur();
+      }
+    });
+  </script>
+</Layout>

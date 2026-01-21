@@ -1,0 +1,41 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="About" />
+  <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
+
+  <section class="animate">
+    <div class="prose prose-neutral dark:prose-invert">
+      <h2 class="mb-4 text-3xl font-bold">Rakhmatullo Makhmudjonov</h2>
+
+      <p class="text-muted-foreground text-lg">"I use arch btw"</p>
+
+      <h3 class="mt-6 text-xl font-semibold">Contact / Aloqa</h3>
+      <ul>
+        <li>
+          Email: <a href="mailto:snaxcyz@gmail.com">snaxcyz@gmail.com</a>
+        </li>
+        <li>
+          Telegram: <a href="https://t.me/mahmudjanovr" target="_blank"
+            >@mahmudjanovr</a
+          >
+        </li>
+        <li>
+          Twitter(X): <a href="https://x.com/mahmudjanovr" target="_blank"
+            >@mahmudjanovr</a
+          >
+        </li>
+        <li>
+          Linkedin: <a
+            href="https://www.linkedin.com/in/mahmudjanovr"
+            target="_blank">@mahmudjanovr</a
+          >
+        </li>
+      </ul>
+    </div>
+  </section>
+</Layout>
