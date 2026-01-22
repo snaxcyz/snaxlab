@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Snaxlab</string>
-    <string name="title_activity_main">Snaxlab</string>
-    <string name="package_name">xyz.snaxlab.app</string>
-    <string name="custom_url_scheme">xyz.snaxlab.app</string>
-</resources>
