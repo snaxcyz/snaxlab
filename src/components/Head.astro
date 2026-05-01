@@ -1,0 +1,66 @@
+---
+import { SITE } from '@/consts'
+import { ClientRouter } from 'astro:transitions'
+import Favicons from './Favicons.astro'
+---
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=yes"
+  />
+  <meta name="generator" content={Astro.generator} />
+
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta
+    name="format-detection"
+    content="telephone=no,date=no,address=no,email=no,url=no"
+  />
+
+  <meta
+    name="theme-color"
+    content="#121212"
+    media="(prefers-color-scheme: dark)"
+  />
+  <meta
+    name="theme-color"
+    content="#ffffff"
+    media="(prefers-color-scheme: light)"
+  />
+  <script is:inline>
+    ;(() => {
+      const storedTheme = localStorage.getItem('theme')
+      const theme =
+        storedTheme === 'dark' || storedTheme === 'light'
+          ? storedTheme
+          : window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+
+      document.documentElement.dataset.theme = theme
+      document.documentElement.classList.remove('scheme-dark', 'scheme-light')
+      document.documentElement.classList.add(
+        theme === 'dark' ? 'scheme-dark' : 'scheme-light',
+      )
+    })()
+  </script>
+
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link
+    rel="alternate"
+    type="application/rss+xml"
+    title={SITE.title}
+    href={new URL('rss.xml', Astro.site)}
+  />
+
+  <Favicons />
+  <ClientRouter />
+
+  <slot />
+</head>
