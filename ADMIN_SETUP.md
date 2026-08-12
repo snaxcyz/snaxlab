@@ -21,7 +21,6 @@ title: "My Article"
 description: "Short description"
 date: 2026-04-29
 lang: "uz"
-translationId: "my-article"
 tags: ["coding"]
 authors: ["enscribe"]
 ---

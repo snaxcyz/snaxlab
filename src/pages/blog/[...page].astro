@@ -9,7 +9,7 @@ import { getAllPosts, groupPostsByYear } from '@/lib/data-utils'
 export async function getStaticPaths({ paginate }) {
   const allPosts = await getAllPosts()
 
-  const filteredPosts = allPosts.filter((post) => post.data.lang === 'uz')
+  const filteredPosts = allPosts
 
   return paginate(filteredPosts, { pageSize: SITE.postsPerPage })
 }

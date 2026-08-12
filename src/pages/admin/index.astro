@@ -95,14 +95,6 @@ const pageTitle = 'SnaxLab Admin'
 
             <div class="two-cols">
               <label>
-                <span>Language</span>
-                <select id="lang" name="lang" required>
-                  <option value="uz">Uzbek</option>
-                  <option value="en">English</option>
-                </select>
-              </label>
-
-              <label>
                 <span>Status</span>
                 <select id="draft" name="draft">
                   <option value="false">Publish now</option>
@@ -133,19 +125,6 @@ const pageTitle = 'SnaxLab Admin'
                 <input id="slug" name="slug" placeholder="auto-generated" />
               </label>
 
-              <label>
-                <span>Translation ID</span>
-                <input
-                  id="translationId"
-                  name="translationId"
-                  placeholder="same-id-for-uz-and-en"
-                />
-              </label>
-            </div>
-
-            <label>
-              <span>Tags</span>
-              <input id="tags" name="tags" placeholder="coding, astro, linux" />
             </label>
 
             <label>
@@ -218,10 +197,8 @@ const pageTitle = 'SnaxLab Admin'
         password: document.querySelector('#password'),
         title: document.querySelector('#title'),
         description: document.querySelector('#description'),
-        lang: document.querySelector('#lang'),
         draft: document.querySelector('#draft'),
         slug: document.querySelector('#slug'),
-        translationId: document.querySelector('#translationId'),
         tags: document.querySelector('#tags'),
         authors: document.querySelector('#authors'),
         body: document.querySelector('#body'),
@@ -285,16 +262,14 @@ const pageTitle = 'SnaxLab Admin'
         const title = fields.title.value.trim()
         const autoSlug = slugify(title || 'untitled-post')
         const slug = slugify(fields.slug.value || autoSlug)
-        const translationId = slugify(fields.translationId.value || slug)
 
         return {
           password: fields.password.value,
           title,
           description: fields.description.value.trim(),
-          lang: fields.lang.value,
+          lang: 'uz',
           draft: fields.draft.value === 'true',
           slug,
-          translationId,
           tags: splitList(fields.tags.value),
           authors: splitList(fields.authors.value || 'enscribe'),
           body: fields.body.value.trim(),
@@ -308,7 +283,6 @@ title: ${yamlString(data.title)}
 description: ${yamlString(data.description)}
 date: ${today()}
 lang: ${yamlString(data.lang)}
-translationId: ${yamlString(data.translationId)}
 tags: ${JSON.stringify(data.tags)}
 authors: ${JSON.stringify(data.authors)}
 ${draftLine}---
@@ -324,9 +298,9 @@ ${data.body}
         previewTitle.textContent = data.title || 'Your title will appear here'
         previewDescription.textContent =
           data.description || 'Your description preview will appear here.'
-        previewLang.textContent = data.lang.toUpperCase()
+        previewLang.textContent = 'UZ'
         previewDate.textContent = today()
-        fileName.textContent = `src/content/blog/${data.slug}-${data.lang}.mdx`
+        fileName.textContent = `src/content/blog/${data.slug}-uz.mdx`
         mdxPreview.textContent = mdx
 
         const words = data.body
@@ -371,7 +345,6 @@ ${data.body}
         field.addEventListener('input', () => {
           if (field === fields.title && !fields.slug.dataset.touched) {
             fields.slug.value = slugify(fields.title.value)
-            fields.translationId.value = fields.slug.value
           }
           updatePreview()
           saveDraft()

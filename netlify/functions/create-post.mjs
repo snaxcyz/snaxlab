@@ -56,7 +56,6 @@ title: ${yamlString(data.title)}
 description: ${yamlString(data.description)}
 date: ${new Date().toISOString().slice(0, 10)}
 lang: ${yamlString(data.lang)}
-translationId: ${yamlString(data.translationId)}
 tags: ${JSON.stringify(data.tags)}
 authors: ${JSON.stringify(data.authors)}
 ${draftLine}---
@@ -99,9 +98,8 @@ export async function handler(event) {
     const title = String(input.title || '').trim().slice(0, 120)
     const description = String(input.description || '').trim().slice(0, 240)
     const body = String(input.body || '').trim()
-    const lang = input.lang === 'en' ? 'en' : 'uz'
+    const lang = 'uz'
     const slug = slugify(input.slug || title)
-    const translationId = slugify(input.translationId || slug)
     const tags = cleanList(input.tags)
     const authors = cleanList(input.authors, ['enscribe'])
     const draft = Boolean(input.draft)
@@ -131,8 +129,6 @@ export async function handler(event) {
       description,
       body,
       lang,
-      slug,
-      translationId,
       tags,
       authors,
       draft,

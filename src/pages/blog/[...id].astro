@@ -1,13 +1,15 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import PostHead from '@/components/PostHead.astro'
+import PostNavigation from '@/components/PostNavigation.astro'
 import Layout from '@/layouts/Layout.astro'
 import {
+  getAdjacentPosts,
   getAllPostsAndSubposts,
   getPostReadingTime,
 } from '@/lib/data-utils'
 import { cn, formatDate } from '@/lib/utils'
-import { getCollection, render } from 'astro:content'
+import { render } from 'astro:content'
 
 export async function getStaticPaths() {
   const posts = await getAllPostsAndSubposts()
@@ -23,24 +25,11 @@ const { Content } = await render(post)
 
 const postReadingTime = await getPostReadingTime(currentPostId)
 
-const { lang, translationId } = post.data
-const allBlogPosts = await getCollection('blog')
-
-const uzVersion =
-  lang === 'uz'
-    ? post
-    : allBlogPosts.find(
-        (p) => p.data.translationId === translationId && p.data.lang === 'uz',
-      )
-const enVersion =
-  lang === 'en'
-    ? post
-    : allBlogPosts.find(
-        (p) => p.data.translationId === translationId && p.data.lang === 'en',
-      )
-
-const uzUrl = uzVersion ? `/blog/${uzVersion.id}` : null
-const enUrl = enVersion ? `/blog/${enVersion.id}` : null
+const {
+  newer: newerPost,
+  older: olderPost,
+  parent: parentPost,
+} = await getAdjacentPosts(currentPostId)
 ---
 
 <Layout>
@@ -64,28 +53,9 @@ const enUrl = enVersion ? `/blog/${enVersion.id}` : null
       <div
         class="border-border bg-secondary/20 flex shrink-0 items-center gap-1 rounded-full border p-1"
       >
-        <a
-          href={uzUrl || '#'}
-          class={cn(
-            'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
-            lang === 'uz'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : uzUrl
-                ? 'hover:bg-secondary text-muted-foreground'
-                : 'opacity-30 cursor-not-allowed',
-          )}>UZ</a
-        >
-        <a
-          href={enUrl || '#'}
-          class={cn(
-            'px-3 py-1 rounded-full text-[10px] font-bold transition-all',
-            lang === 'en'
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : enUrl
-                ? 'hover:bg-secondary text-muted-foreground'
-                : 'opacity-30 cursor-not-allowed',
-          )}>EN</a
-        >
+        <span
+          class="px-3 py-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground shadow-sm"
+        >UZ</span>
       </div>
     </div>
 
@@ -111,5 +81,13 @@ const enUrl = enVersion ? `/blog/${enVersion.id}` : null
     >
       <Content />
     </article>
+
+    <hr class="border-border col-start-2" />
+
+    <PostNavigation
+      newerPost={newerPost}
+      olderPost={olderPost}
+      parentPost={parentPost}
+    />
   </section>
 </Layout>

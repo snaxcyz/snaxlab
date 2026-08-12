@@ -36,7 +36,6 @@ export async function getAdjacentPosts(currentId) {
   const allPosts = await getAllPosts()
   if (isSubpost(currentId)) {
     const parentId = getParentId(currentId)
-    const allPosts = await getAllPosts()
     const parent = allPosts.find((post) => post.id === parentId) || null
     const posts = await getCollection('blog')
     const subposts = posts
@@ -64,6 +63,7 @@ export async function getAdjacentPosts(currentId) {
       parent,
     }
   }
+
   const parentPosts = allPosts.filter((post) => !isSubpost(post.id))
   const currentIndex = parentPosts.findIndex((post) => post.id === currentId)
   if (currentIndex === -1) {

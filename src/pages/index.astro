@@ -7,13 +7,7 @@ import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import { getRecentPosts } from '@/lib/data-utils'
 
-const allRecent = await getRecentPosts(20)
-const blog = allRecent
-  .filter((post) => {
-    const lang = post.data.lang?.trim()
-    return lang === 'uz' || !lang
-  })
-  .slice(0, SITE.featuredPostCount)
+const blog = await getRecentPosts(SITE.featuredPostCount)
 ---
 
 <Layout class="max-w-3xl">
@@ -42,15 +36,11 @@ const blog = allRecent
 
       <div class="p-6 pt-0">
         <p class="text-muted-foreground mb-2 text-sm">
-          My digital world. Here you can find various articles covering music,
-          book reviews, art, math, coding, and software.
+         Shaxsiy raqamli makon. O'z qiziqishlarim asosida yuritaman, yozilgan fikrlar mutlaqo shaxsiy.
         </p>
-        <p class="text-sm">
-          Bu mening shaxsiy sayt blogim. O'zimga manzur keladigan narsalar
-          haqida yozish uchun ishlab chiqqanman.
-        </p>
+        
         <div class="text-muted-foreground mt-4 text-xs italic">
-          Notes, experiments, and essays from SnaxLab.
+          Hurmat bilan men.
         </div>
       </div>
     </div>
