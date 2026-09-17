@@ -45,56 +45,58 @@ const {
   >
     <TOCSidebar sections={tocSections} currentPostId={currentPostId} />
 
-    <div class="col-start-2 flex items-center justify-between gap-4">
-      <Breadcrumbs
-        items={[
-          { href: '/blog', label: 'Blog', icon: 'lucide:library-big' },
-          {
-            href: `/blog/${currentPostId}`,
-            label: post.data.title,
-            icon: 'lucide:book-open-text',
-          },
-        ]}
-      />
+    <div class="col-start-2 flex flex-col gap-y-10">
+      <div class="flex items-center justify-between gap-4">
+        <Breadcrumbs
+          items={[
+            { href: '/blog', label: 'Blog', icon: 'lucide:library-big' },
+            {
+              href: `/blog/${currentPostId}`,
+              label: post.data.title,
+              icon: 'lucide:book-open-text',
+            },
+          ]}
+        />
 
-      <div
-        class="border-border bg-secondary/20 flex shrink-0 items-center gap-1 rounded-full border p-1"
-      >
-        <span
-          class="px-3 py-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground shadow-sm"
-        >UZ</span>
-      </div>
-    </div>
-
-    <header class="col-start-2 flex flex-col gap-y-4 text-center">
-      <h1 id="post-title" class="text-4xl leading-tight font-bold sm:text-5xl">
-        {post.data.title}
-      </h1>
-      <div
-        class="text-muted-foreground flex items-center justify-center gap-x-4 text-sm"
-      >
-        <time datetime={post.data.date.toISOString()}
-          >{formatDate(post.data.date)}</time
+        <div
+          class="border-border bg-secondary/20 flex shrink-0 items-center gap-1 rounded-full border p-1"
         >
-        <span>•</span>
-        <span>{postReadingTime}</span>
+          <span
+            class="px-3 py-1 rounded-full text-[10px] font-bold bg-primary text-primary-foreground shadow-sm"
+          >UZ</span>
+        </div>
       </div>
-    </header>
 
-    <hr class="border-border col-start-2" />
+      <header class="flex flex-col gap-y-4 text-center">
+        <h1 id="post-title" class="text-4xl leading-tight font-bold sm:text-5xl">
+          {post.data.title}
+        </h1>
+        <div
+          class="text-muted-foreground flex items-center justify-center gap-x-4 text-sm"
+        >
+          <time datetime={post.data.date.toISOString()}
+            >{formatDate(post.data.date)}</time
+          >
+          <span>•</span>
+          <span>{postReadingTime}</span>
+        </div>
+      </header>
 
-    <article
-      class="prose prose-invert prose-headings:scroll-mt-28 prose-p:leading-relaxed col-start-2 max-w-none"
-    >
-      <Content />
-    </article>
+      <hr class="border-border" />
 
-    <hr class="border-border col-start-2" />
+      <article
+        class="prose prose-invert prose-headings:scroll-mt-28 prose-p:leading-relaxed max-w-none"
+      >
+        <Content />
+      </article>
 
-    <PostNavigation
-      newerPost={newerPost}
-      olderPost={olderPost}
-      parentPost={parentPost}
-    />
+      <hr class="border-border" />
+
+      <PostNavigation
+        newerPost={newerPost}
+        olderPost={olderPost}
+        parentPost={parentPost}
+      />
+    </div>
   </section>
 </Layout>

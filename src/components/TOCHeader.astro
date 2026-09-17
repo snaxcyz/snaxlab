@@ -9,12 +9,16 @@ const { headings } = Astro.props
 
 {
   headings && headings.length > 0 && (
-    <div id="mobile-toc-container" class="w-full xl:hidden">
+    <nav
+      id="mobile-toc-container"
+      aria-label="Mundarija"
+      class="w-full bg-background/90 backdrop-blur-md xl:hidden"
+    >
       <details class="group">
-        <summary class="flex w-full cursor-pointer items-center justify-between">
+        <summary class="flex w-full cursor-pointer items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xs">
           <div class="mx-auto flex w-full max-w-3xl items-center px-4 py-3">
             <div class="relative mr-2 size-4">
-              <svg class="h-4 w-4" viewBox="0 0 24 24">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                 <circle
                   class="text-primary/20"
                   cx="12"
@@ -43,12 +47,13 @@ const { headings } = Astro.props
               id="mobile-toc-current-section"
               class="text-muted-foreground flex-grow truncate text-sm"
             >
-              Overview
+              Mundarija
             </span>
             <span class="text-muted-foreground ml-2">
               <Icon
                 name="lucide:chevron-down"
                 class="h-4 w-4 transition-transform duration-200 group-open:rotate-180"
+                aria-hidden="true"
               />
             </span>
           </div>
@@ -56,7 +61,7 @@ const { headings } = Astro.props
 
         <ScrollArea
           client:load
-          className="mx-auto max-w-3xl"
+          className="mx-auto max-w-3xl bg-background border-b border-border shadow-xs"
           data-toc-header-scroll
         >
           <div class="max-h-[30vh]">
@@ -74,7 +79,7 @@ const { headings } = Astro.props
                 >
                   <a
                     href={`#${heading.slug}`}
-                    class="mobile-toc-item underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit"
+                    class="mobile-toc-item underline decoration-transparent underline-offset-[3px] transition-colors duration-200 hover:decoration-inherit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xs"
                     data-heading-id={heading.slug}
                   >
                     {heading.text}
@@ -85,12 +90,12 @@ const { headings } = Astro.props
           </div>
         </ScrollArea>
       </details>
-    </div>
+    </nav>
   )
 }
 
 <script>
-  const INITIAL_OVERVIEW_TEXT = 'Overview'
+  const INITIAL_OVERVIEW_TEXT = 'Mundarija'
   const HEADER_OFFSET = 102 + 36
   const PROGRESS_CIRCLE_RADIUS = 10
   const PROGRESS_CIRCLE_CIRCUMFERENCE = 2 * Math.PI * PROGRESS_CIRCLE_RADIUS
@@ -217,9 +222,9 @@ const { headings } = Astro.props
         const tocItem = item as HTMLElement
         const headingId = tocItem.dataset.headingId
         if (headingId && headingIds.includes(headingId)) {
-          tocItem.classList.add('text-foreground')
+          tocItem.classList.add('text-foreground', 'font-medium')
         } else {
-          tocItem.classList.remove('text-foreground')
+          tocItem.classList.remove('text-foreground', 'font-medium')
         }
       })
 
