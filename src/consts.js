@@ -4,7 +4,7 @@ export const SITE = {
     'A personal blog and portfolio about software, music, books, math, art, and digital craft.',
   href: 'https://snaxlab.netlify.app',
   author: 'Rakhmatullo Makhmudjonov',
-  locale: 'en-US',
+  locale: 'uz',
   featuredPostCount: 2,
   postsPerPage: 3,
 }

@@ -8,7 +8,7 @@ import SocialIcons from './SocialIcons.astro'
 const { author } = Astro.props
 const { name, avatar, bio, pronouns } = author.data
 const currentPath = Astro.url.pathname
-const isAuthorPage = currentPath === `/authors/${author.id}`
+const isAuthorPage = currentPath.replace(/\/$/, '') === `/authors/${author.id}`
 
 const socialLinks = [
   author.data.website && { href: author.data.website, label: 'Website' },
