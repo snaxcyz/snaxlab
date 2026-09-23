@@ -124,21 +124,6 @@
   line-height: 36px;
 }
 
-custom-player {
-  background: #222;
-  color: white;
-  padding: 10px;
-  border-radius: 10px;
-  width: 300px;
-}
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-input[type=range] {
-  flex: 1;
-}
 @keyframes snax-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }

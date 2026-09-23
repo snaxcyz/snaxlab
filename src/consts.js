@@ -21,6 +21,10 @@ export const NAV_LINKS = [
     href: '/about',
     label: 'about',
   },
+  {
+    href: '/search',
+    label: 'qidiruv',
+  },
 ]
 export const SOCIAL_LINKS = [
   {

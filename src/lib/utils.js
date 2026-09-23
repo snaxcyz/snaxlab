@@ -4,7 +4,7 @@ export function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 export function formatDate(date) {
-    return Intl.DateTimeFormat('en-US', {
+    return Intl.DateTimeFormat('uz-UZ', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -18,7 +18,7 @@ export function calculateWordCountFromHtml(html) {
 }
 export function readingTime(wordCount) {
     const readingTimeMinutes = Math.max(1, Math.round(wordCount / 200));
-    return `${readingTimeMinutes} min read`;
+    return `${readingTimeMinutes} daqiqa mutolaa`;
 }
 export function getHeadingMargin(depth) {
     const margins = {

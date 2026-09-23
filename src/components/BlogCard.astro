@@ -1,5 +1,4 @@
 ---
-import AvatarComponent from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -44,7 +43,11 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 
     <div class="grow">
       <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
-      <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+      {
+        entry.data.description && (
+          <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+        )
+      }
 
       <div
         class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
@@ -54,13 +57,24 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
             <>
               {authors.map((author) => (
                 <div class="flex items-center gap-x-1.5">
-                  <AvatarComponent
-                    client:load
-                    src={author.avatar}
-                    alt={author.name}
-                    fallback={author.name[0]}
-                    className="size-5 rounded-full"
-                  />
+                  {author.avatar ? (
+                    <img
+                      src={author.avatar}
+                      alt={author.name}
+                      width="20"
+                      height="20"
+                      class="size-5 shrink-0 rounded-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <span
+                      class="bg-muted flex size-5 shrink-0 items-center justify-center rounded-full text-[10px]"
+                      aria-hidden="true"
+                    >
+                      {author.name[0]}
+                    </span>
+                  )}
                   <span>{author.name}</span>
                 </div>
               ))}
@@ -77,7 +91,7 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
               <Separator orientation="vertical" className="h-4!" />
               <span class="flex items-center gap-1">
                 <Icon name="lucide:file-text" class="size-3" />
-                {subpostCount} subpost{subpostCount === 1 ? '' : 's'}
+                {subpostCount} ta qism
               </span>
             </>
           )

@@ -19,13 +19,13 @@ function PaginationLink({ className, isActive, isDisabled, size = 'icon', ...pro
         }), isDisabled && 'pointer-events-none opacity-50', className), ...props }));
 }
 function PaginationPrevious({ className, isDisabled, ...props }) {
-    return (_jsxs(PaginationLink, { "aria-label": "Go to previous page", size: "default", className: cn('gap-1 px-2.5 sm:pl-2.5', className), isDisabled: isDisabled, ...props, children: [_jsx(ChevronLeftIcon, {}), _jsx("span", { className: "hidden sm:block", children: "Previous" })] }));
+    return (_jsxs(PaginationLink, { "aria-label": "Oldingi sahifaga o'tish", size: "default", className: cn('gap-1 px-2.5 sm:pl-2.5', className), isDisabled: isDisabled, ...props, children: [_jsx(ChevronLeftIcon, {}), _jsx("span", { className: "hidden sm:block", children: "Oldingi" })] }));
 }
 function PaginationNext({ className, isDisabled, ...props }) {
-    return (_jsxs(PaginationLink, { "aria-label": "Go to next page", size: "default", className: cn('gap-1 px-2.5 sm:pr-2.5', className), isDisabled: isDisabled, ...props, children: [_jsx("span", { className: "hidden sm:block", children: "Next" }), _jsx(ChevronRightIcon, {})] }));
+    return (_jsxs(PaginationLink, { "aria-label": "Keyingi sahifaga o'tish", size: "default", className: cn('gap-1 px-2.5 sm:pr-2.5', className), isDisabled: isDisabled, ...props, children: [_jsx("span", { className: "hidden sm:block", children: "Keyingi" }), _jsx(ChevronRightIcon, {})] }));
 }
 function PaginationEllipsis({ className, ...props }) {
-    return (_jsxs("span", { "aria-hidden": true, "data-slot": "pagination-ellipsis", className: cn('flex size-9 items-center justify-center', className), ...props, children: [_jsx(MoreHorizontalIcon, { className: "size-4" }), _jsx("span", { className: "sr-only", children: "More pages" })] }));
+    return (_jsxs("span", { "aria-hidden": true, "data-slot": "pagination-ellipsis", className: cn('flex size-9 items-center justify-center', className), ...props, children: [_jsx(MoreHorizontalIcon, { className: "size-4" }), _jsx("span", { className: "sr-only", children: "Boshqa sahifalar" })] }));
 }
 const PaginationComponent = ({ currentPage, totalPages, baseUrl, }) => {
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);

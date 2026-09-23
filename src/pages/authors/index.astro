@@ -9,8 +9,8 @@ const authors = await getAllAuthors()
 ---
 
 <Layout class="max-w-3xl">
-  <PageHead slot="head" title="Author" />
-  <Breadcrumbs items={[{ label: 'Authors', icon: 'lucide:users' }]} />
+  <PageHead slot="head" title="Mualliflar" />
+  <Breadcrumbs items={[{ label: 'Mualliflar', icon: 'lucide:users' }]} />
   {
     authors.length > 0 ? (
       <ul class="flex flex-col gap-4">
@@ -21,7 +21,7 @@ const authors = await getAllAuthors()
         ))}
       </ul>
     ) : (
-      <p class="text-muted-foreground text-center">No authors found.</p>
+      <p class="text-muted-foreground text-center">Mualliflar topilmadi.</p>
     )
   }
 </Layout>
