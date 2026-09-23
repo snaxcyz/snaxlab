@@ -68,9 +68,25 @@ The publish flow is:
 - Build output directory: `dist`
 - Functions directory: `functions` (picked up automatically)
 
-## Important security note
+## API security
 
-The GitHub token is used only inside `functions/api/create-post.js`.
-Never put your GitHub token inside browser JavaScript, Astro components, or public files.
+- **Password is server-side**: `ADMIN_PASSWORD` is injected into `functions/api/create-post.js` via Cloudflare Pages environment bindings (`context.env`). It is never bundled into client scripts or public HTML, and is never stored in `localStorage` or `sessionStorage`.
+- **GitHub token is server-side**: `GITHUB_TOKEN` is used only in the serverless function (`context.env.GITHUB_TOKEN`) to commit to GitHub; it is never exposed to the client or returned in API responses.
+- **Origin validation**: The endpoint validates the `Origin` header against the canonical site URL to block unauthorized cross-origin browser requests (`403 Forbidden`).
+- **Request-size protection**: Pre-parse `Content-Length` checks reject oversized payloads (`> 300,000` bytes) with `413 Payload Too Large` to prevent memory exhaustion, followed by strict post-parse field length limits (body <= 200,000 characters).
+- **Sanitized errors**: Internal errors and GitHub API responses are mapped to static, non-revealing error messages; no stack traces, raw upstream bodies, or secrets are leaked.
+- **Timing-safe authentication**: Password comparison uses Web Cryptography HMAC-SHA256 constant-time evaluation with modest backoff delay on failed attempts.
+- **HTTP security headers**: `public/_headers` applies `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-Frame-Options: DENY` / `Content-Security-Policy: frame-ancestors 'none'` to prevent clickjacking on `/admin`.
 
-The admin password is never stored in `localStorage`.
+## Cloudflare rate limiting
+
+To protect `/api/create-post` from automated brute-force password guessing, configure a Rate Limiting Rule in the Cloudflare Dashboard:
+
+```text
+Path: /api/create-post
+Method: POST
+Rate: approximately 5 requests/minute/IP
+Action: Block (429) or an appropriate managed challenge
+```
+
+> **Note**: This is an external Cloudflare Dashboard WAF configuration. It is not managed in this repository, is not currently verified as enabled, and requires manual verification in your Cloudflare Dashboard.

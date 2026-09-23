@@ -22,14 +22,14 @@ function decodeBase64(value) {
   )
 }
 
-async function call(body, { fetchImpl, envOverrides } = {}) {
+async function call(body, { fetchImpl, envOverrides, headers } = {}) {
   const originalFetch = globalThis.fetch
   if (fetchImpl) globalThis.fetch = fetchImpl
   try {
     return await onRequestPost({
       request: new Request('https://snaxlab.example/api/create-post', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...headers },
         body: typeof body === 'string' ? body : JSON.stringify(body),
       }),
       env: { ...env, ...envOverrides },
@@ -258,6 +258,122 @@ assert(source.includes('export async function onRequestPost'), 'must export onRe
     `draft commit message was ${putBody.message}`,
   )
   assert(mdx.includes('draft: true\n'), 'draft frontmatter must be present')
+}
+
+{
+  const res = await call(
+    { password: 'secret-pass', title: 'Hello', description: 'Desc', body: 'Body' },
+    { headers: { Origin: 'https://attacker.example' } },
+  )
+  const result = await read(res)
+  assert(result.status === 403, `mismatched origin should be 403, got ${result.status}`)
+  assert(result.body.error === 'Forbidden origin.', 'origin error message')
+}
+
+{
+  let putPath
+  const fetchImpl = async (url, options) => {
+    if (!options || options.method === 'GET') {
+      return new Response('Not Found', { status: 404 })
+    }
+    putPath = String(url)
+    return new Response(
+      JSON.stringify({
+        commit: { html_url: 'https://github.com/snaxcyz/snaxlab/commit/allowed-origin' },
+      }),
+      { status: 201 },
+    )
+  }
+  const res = await call(
+    { password: 'secret-pass', title: 'Allowed Origin Post', description: 'Desc', body: 'Body' },
+    { fetchImpl, headers: { Origin: 'https://snaxlab.example' } },
+  )
+  const result = await read(res)
+  assert(result.status === 200, `matching origin should succeed with 200, got ${result.status}`)
+  assert(result.body.ok === true, 'allowed origin should produce ok: true')
+  assert(putPath.includes('/contents/'), 'PUT path was called')
+}
+
+{
+  const res = await call(
+    { password: 'secret-pass', title: 'Hello', description: 'Desc', body: 'Body' },
+    { headers: { 'Content-Length': '350000' } },
+  )
+  const result = await read(res)
+  assert(result.status === 413, `oversized content-length should be 413, got ${result.status}`)
+  assert(result.body.error === 'Request body is too large.', 'content-length error message')
+}
+
+{
+  const res = await call({
+    password: '',
+    title: 'Hello',
+    description: 'Desc',
+    body: 'Body',
+  })
+  const result = await read(res)
+  assert(result.status === 400, `empty password should be 400, got ${result.status}`)
+  assert(result.body.error === 'Admin password is required.', 'empty password message')
+}
+
+{
+  let targetUrl
+  const fetchImpl = async (url, options) => {
+    if (!options || options.method === 'GET') {
+      return new Response('Not Found', { status: 404 })
+    }
+    targetUrl = String(url)
+    return new Response(
+      JSON.stringify({ commit: { html_url: 'https://github.com/snaxcyz/snaxlab/commit/traversal' } }),
+      { status: 201 },
+    )
+  }
+  const res = await call(
+    {
+      password: 'secret-pass',
+      title: 'Path Traversal Attempt',
+      slug: '../../../evil-slug',
+      description: 'Desc',
+      body: 'Body',
+    },
+    { fetchImpl },
+  )
+  const result = await read(res)
+  assert(result.status === 200, `sanitized slug should succeed with 200, got ${result.status}`)
+  assert(result.body.path === 'src/content/blog/evil-slug-uz.mdx', `path traversal was neutralized: ${result.body.path}`)
+  assert(targetUrl.endsWith('/src/content/blog/evil-slug-uz.mdx'), `GitHub URL path was sanitized: ${targetUrl}`)
+}
+
+{
+  let putBody
+  const fetchImpl = async (url, options) => {
+    if (!options || options.method === 'GET') {
+      return new Response('Not Found', { status: 404 })
+    }
+    putBody = JSON.parse(options.body)
+    return new Response(
+      JSON.stringify({ commit: { html_url: 'https://github.com/snaxcyz/snaxlab/commit/frontmatter' } }),
+      { status: 201 },
+    )
+  }
+  const res = await call(
+    {
+      password: 'secret-pass',
+      title: 'Injection "\n---\nmalicious: true\n---',
+      description: 'Description with "quotes" and \n--- delimiter',
+      body: 'Article body',
+    },
+    { fetchImpl },
+  )
+  const result = await read(res)
+  assert(result.status === 200, `frontmatter special chars should succeed, got ${result.status}`)
+  const mdx = decodeBase64(putBody.content)
+  assert(mdx.startsWith('---\n'), 'frontmatter starts cleanly')
+  const closingIndex = mdx.indexOf('\n---\n', 4)
+  assert(closingIndex !== -1, 'frontmatter has valid closing delimiter')
+  const frontmatterSection = mdx.slice(4, closingIndex)
+  assert(!frontmatterSection.includes('\nmalicious: true'), 'delimiter breakout is impossible')
+  assert(frontmatterSection.includes('title: "Injection \\"\\n---\\nmalicious: true\\n---"'), 'title is properly JSON-escaped')
 }
 
 if (failures.length) {

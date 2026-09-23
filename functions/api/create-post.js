@@ -11,6 +11,37 @@ const LIMITS = {
 const GITHUB_API_VERSION = '2022-11-28'
 
 export async function onRequestPost(context) {
+  const origin = context.request.headers.get('origin')
+  if (origin) {
+    let requestOrigin
+    try {
+      requestOrigin = new URL(context.request.url).origin
+    } catch {
+      return json({ error: 'Invalid request URL.' }, 400)
+    }
+
+    const allowedOrigins = new Set([requestOrigin])
+    const env = context.env || {}
+    const siteUrl = env.SITE_URL || env.URL
+    if (siteUrl) {
+      try {
+        allowedOrigins.add(new URL(siteUrl).origin)
+      } catch {}
+    }
+
+    if (!allowedOrigins.has(origin)) {
+      return json({ error: 'Forbidden origin.' }, 403)
+    }
+  }
+
+  const contentLengthHeader = context.request.headers.get('content-length')
+  if (contentLengthHeader) {
+    const contentLength = parseInt(contentLengthHeader, 10)
+    if (Number.isFinite(contentLength) && contentLength > 300000) {
+      return json({ error: 'Request body is too large.' }, 413)
+    }
+  }
+
   let payload
 
   try {
@@ -46,6 +77,8 @@ export async function onRequestPost(context) {
 
   const passwordOk = await passwordsMatch(providedPassword, adminPassword)
   if (!passwordOk) {
+    // Modest delay on failed authentication to slow automated guessing without excessive execution time
+    await new Promise((resolve) => setTimeout(resolve, 250))
     return json({ error: 'Wrong admin password.' }, 401)
   }
 
