@@ -28,7 +28,7 @@ export async function onRequestPost(context) {
   const githubToken = env.GITHUB_TOKEN
   const owner = String(env.GITHUB_OWNER || '').trim()
   const repo = String(env.GITHUB_REPO || '').trim()
-  const branch = String(env.GITHUB_BRANCH || 'main').trim() || 'main'
+  const branch = String(env.GITHUB_BRANCH || 'master').trim() || 'master'
 
   if (!adminPassword || !githubToken || !owner || !repo) {
     return json(

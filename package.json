@@ -10,6 +10,7 @@
     "check": "astro check",
     "preview": "astro preview",
     "astro": "astro",
+    "test:cms": "node functions/api/create-post.test.mjs",
     "prettier": "prettier --write **/*.{js,jsx,css,astro,mjs} --ignore-path .gitignore",
     "postinstall": "patch-package"
   },

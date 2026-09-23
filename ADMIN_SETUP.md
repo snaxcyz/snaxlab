@@ -37,10 +37,10 @@ ADMIN_PASSWORD=choose_a_strong_private_password
 GITHUB_TOKEN=your_fine_grained_github_token
 GITHUB_OWNER=your_github_username
 GITHUB_REPO=your_repo_name
-GITHUB_BRANCH=main
+GITHUB_BRANCH=master
 ```
 
-`GITHUB_BRANCH` defaults to `main` if it is not set.
+`GITHUB_BRANCH` defaults to `master` if it is not set.
 
 ## GitHub token permissions
 

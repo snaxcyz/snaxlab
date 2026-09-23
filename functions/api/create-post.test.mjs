@@ -211,7 +211,7 @@ assert(source.includes('export async function onRequestPost'), 'must export onRe
     `commit message was ${putBody.message}`,
   )
   assert(!putBody.sha, 'create must not send a sha')
-  assert(putBody.branch === 'main', `branch was ${putBody.branch}`)
+  assert(putBody.branch === 'master', `branch was ${putBody.branch}`)
 
   const mdx = decodeBase64(putBody.content)
   assert(mdx.includes('lang: "uz"'), 'language must be forced to uz')
