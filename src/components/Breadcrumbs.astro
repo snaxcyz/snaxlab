@@ -32,7 +32,7 @@ const { items } = Astro.props
                   {item.icon && (
                     <Icon name={item.icon} class="size-4 shrink-0" />
                   )}
-                  <span>{item.label}</span>
+                  <span class="max-w-[200px] truncate sm:max-w-xs md:max-w-md" title={item.label}>{item.label}</span>
                 </span>
               </BreadcrumbPage>
             ) : (
@@ -41,7 +41,7 @@ const { items } = Astro.props
                   {item.icon && (
                     <Icon name={item.icon} class="size-4 shrink-0" />
                   )}
-                  <span>{item.label}</span>
+                  <span class="max-w-[160px] truncate sm:max-w-xs" title={item.label}>{item.label}</span>
                 </span>
               </BreadcrumbLink>
             )}

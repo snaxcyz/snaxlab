@@ -42,15 +42,15 @@
 
     /* Don't use an <h1> in your posts, one is already generated in blog/[...id].astro */
     :where(h1):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-6 text-4xl;
+      @apply mt-8 mb-6 text-3xl sm:text-4xl;
     }
 
     :where(h2):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-4 text-2xl;
+      @apply mt-8 mb-4 text-xl sm:text-2xl;
     }
 
     :where(h3):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
-      @apply mt-8 mb-4 text-xl;
+      @apply mt-8 mb-4 text-lg sm:text-xl;
     }
 
     :where(h4):not(:where([class~='not-prose'], [class~='not-prose'] *)) {

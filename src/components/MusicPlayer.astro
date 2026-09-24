@@ -86,14 +86,14 @@ const uid = `mp-${Math.random().toString(36).slice(2, 9)}`;
     <button class="mp-btn mp-btn--ghost" data-el="shuffle" aria-label="Aralashtirish" aria-pressed="false" type="button">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M3 6h3.5c1.4 0 2.7.7 3.4 1.9l5.2 8.2c.7 1.2 2 1.9 3.4 1.9H21M3 18h3.5c1.4 0 2.7-.7 3.4-1.9l.5-.8M15.5 6H21m0 0-3-3m3 3-3 3M21 18l-3 3m3-3-3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <button class="mp-btn" data-el="prev" aria-label="Oldingi" type="button">
+    <button class="mp-btn" data-el="prev" aria-label="10 soniya orqaga" title="10 soniya orqaga" type="button">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M18 5v14L7 12l11-7Z" fill="currentColor"/><rect x="4" y="5" width="2" height="14" rx="1" fill="currentColor"/></svg>
     </button>
-    <button class="mp-btn mp-btn--play" data-el="play" aria-label="Ijro etish" type="button">
+    <button class="mp-btn mp-btn--play" data-el="play" aria-label="Ijro etish" title="Ijro etish" type="button">
       <svg data-el="playIcon" viewBox="0 0 24 24" width="20" height="20" fill="none"><path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor"/></svg>
       <svg data-el="pauseIcon" viewBox="0 0 24 24" width="20" height="20" fill="none" style="display:none"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>
     </button>
-    <button class="mp-btn" data-el="next" aria-label="Keyingi" type="button">
+    <button class="mp-btn" data-el="next" aria-label="10 soniya oldinga" title="10 soniya oldinga" type="button">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none"><path d="M6 5v14l11-7L6 5Z" fill="currentColor"/><rect x="18" y="5" width="2" height="14" rx="1" fill="currentColor"/></svg>
     </button>
     <button class="mp-btn mp-btn--ghost" data-el="repeat" aria-label="Takrorlash" aria-pressed="false" type="button">
@@ -472,6 +472,8 @@ const uid = `mp-${Math.random().toString(36).slice(2, 9)}`;
     const likeBtn = root.querySelector<HTMLButtonElement>('[data-el="like"]');
     const shuffleBtn = root.querySelector<HTMLButtonElement>('[data-el="shuffle"]');
     const repeatBtn = root.querySelector<HTMLButtonElement>('[data-el="repeat"]');
+    const prevBtn = root.querySelector<HTMLButtonElement>('[data-el="prev"]');
+    const nextBtn = root.querySelector<HTMLButtonElement>('[data-el="next"]');
     const speedEl = root.querySelector<HTMLElement>('[data-el="speed"]');
 
     if (!audio || !playBtn || !seek || !current || !duration || !volume) return;
@@ -588,6 +590,19 @@ const uid = `mp-${Math.random().toString(36).slice(2, 9)}`;
         e.preventDefault();
         speedEl.click();
       }
+    });
+
+    prevBtn?.addEventListener("click", () => {
+      audio.currentTime = Math.max(0, audio.currentTime - 10);
+      seek.value = String(audio.currentTime);
+      seek.dispatchEvent(new Event("input"));
+    });
+
+    nextBtn?.addEventListener("click", () => {
+      const maxTime = audio.duration || 0;
+      audio.currentTime = Math.min(maxTime, audio.currentTime + 10);
+      seek.value = String(audio.currentTime);
+      seek.dispatchEvent(new Event("input"));
     });
 
     // Boshlang'ich holatlar

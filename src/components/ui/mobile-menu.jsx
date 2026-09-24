@@ -17,6 +17,6 @@ const MobileMenu = () => {
     }, []);
     return (_jsxs(DropdownMenu, { open: isOpen, onOpenChange: (val) => setIsOpen(val), children: [_jsx(DropdownMenuTrigger, { asChild: true, onClick: () => {
                     setIsOpen((val) => !val);
-                }, children: _jsxs(Button, { variant: "ghost", size: "icon", className: "size-8 sm:hidden", title: "Menu", children: [_jsx(Menu, { className: "size-5" }), _jsx("span", { className: "sr-only", children: "Toggle menu" })] }) }), _jsx(DropdownMenuContent, { align: "end", className: "bg-background", children: NAV_LINKS.map((item) => (_jsx(DropdownMenuItem, { asChild: true, children: _jsx("a", { href: item.href, className: "w-full text-lg font-medium capitalize", onClick: () => setIsOpen(false), children: item.label }) }, item.href))) })] }));
+                }, children: _jsxs(Button, { variant: "ghost", size: "icon", className: "size-9 sm:hidden", title: "Menyu", "aria-label": "Menyuni ochish", children: [_jsx(Menu, { className: "size-5" }), _jsx("span", { className: "sr-only", children: "Menyuni ochish" })] }) }), _jsx(DropdownMenuContent, { align: "end", className: "bg-background", children: NAV_LINKS.map((item) => (_jsx(DropdownMenuItem, { asChild: true, children: _jsx("a", { href: item.href, className: "w-full text-lg font-medium capitalize", onClick: () => setIsOpen(false), children: item.label }) }, item.href))) })] }));
 };
 export default MobileMenu;

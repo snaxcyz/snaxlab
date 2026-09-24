@@ -141,3 +141,12 @@
 .animate-snax-pop {
   animation: snax-pop 220ms ease-out both;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-snax-slide,
+  .animate-snax-fade-in,
+  .animate-snax-pop {
+    animation: none !important;
+    transition: none !important;
+  }
+}
