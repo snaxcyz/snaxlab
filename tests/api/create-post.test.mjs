@@ -1,10 +1,10 @@
-import { onRequestPost } from './create-post.js'
+import { onRequestPost } from '../../functions/api/create-post.js'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const source = readFileSync(
-  fileURLToPath(new URL('./create-post.js', import.meta.url)),
+  fileURLToPath(new URL('../../functions/api/create-post.js', import.meta.url)),
   'utf8',
 )
 

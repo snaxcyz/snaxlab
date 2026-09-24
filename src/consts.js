@@ -2,7 +2,7 @@ export const SITE = {
   title: 'SnaxLab',
   description:
     'A personal blog and portfolio about software, music, books, math, art, and digital craft.',
-  href: 'https://snaxlab.netlify.app',
+  href: 'https://snaxlab.blog',
   author: 'Rahmatillo Mahmudjanov',
   locale: 'uz',
   featuredPostCount: 2,

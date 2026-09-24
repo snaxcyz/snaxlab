@@ -19,7 +19,7 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 
 import tailwindcss from '@tailwindcss/vite'
 
-const site = process.env.SITE_URL || process.env.URL || 'https://snaxlab.netlify.app'
+const site = process.env.SITE_URL || process.env.URL || 'https://snaxlab.blog'
 
 export default defineConfig({
   site,
