@@ -22,7 +22,7 @@ description: "Short summary"
 date: "2026-09-16"
 lang: "uz"
 tags: ["coding"]
-authors: ["enscribe"]
+author: "snaxcyz"
 ---
 
 Article body...

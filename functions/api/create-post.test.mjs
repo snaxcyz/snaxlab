@@ -188,7 +188,7 @@ assert(source.includes('export async function onRequestPost'), 'must export onRe
       description: 'A short description',
       slug: 'nietzsche-and-god',
       tags: 'books, philosophy',
-      authors: 'enscribe',
+      author: 'snaxcyz',
       body: '# Article title\n\nArticle body...',
       lang: 'en',
       draft: false,
@@ -218,7 +218,7 @@ assert(source.includes('export async function onRequestPost'), 'must export onRe
   assert(mdx.includes('title: "Nietzsche and God"'), 'title frontmatter')
   assert(mdx.includes('description: "A short description"'), 'description frontmatter')
   assert(mdx.includes('tags: ["books","philosophy"]'), `tags were ${mdx}`)
-  assert(mdx.includes('authors: ["enscribe"]'), 'authors frontmatter')
+  assert(mdx.includes('author: "snaxcyz"'), 'author frontmatter')
   assert(!mdx.includes('draft:'), 'published posts omit draft')
   assert(mdx.includes('# Article title'), 'body is included')
   assert(!mdx.includes('secret-pass'), 'password must not appear in MDX')
@@ -374,6 +374,20 @@ assert(source.includes('export async function onRequestPost'), 'must export onRe
   const frontmatterSection = mdx.slice(4, closingIndex)
   assert(!frontmatterSection.includes('\nmalicious: true'), 'delimiter breakout is impossible')
   assert(frontmatterSection.includes('title: "Injection \\"\\n---\\nmalicious: true\\n---"'), 'title is properly JSON-escaped')
+}
+
+{
+  // Test: Author ID snaxcyz resolves to Rahmatillo Mahmudjanov
+  const authorPath = path.resolve('src/content/authors/snaxcyz.md')
+  const authorContent = readFileSync(authorPath, 'utf8')
+  assert(
+    authorContent.includes("name: 'Rahmatillo Mahmudjanov'"),
+    'author file must resolve name to Rahmatillo Mahmudjanov',
+  )
+  assert(
+    authorContent.includes("github: 'https://github.com/snaxcyz'"),
+    'author file must resolve github to snaxcyz',
+  )
 }
 
 if (failures.length) {

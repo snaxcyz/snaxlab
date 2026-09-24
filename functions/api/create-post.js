@@ -105,11 +105,18 @@ export async function onRequestPost(context) {
   }
 
   let tags
-  let authors
+  let author
 
   try {
     tags = parseList(payload.tags, LIMITS.tags, LIMITS.item)
-    authors = parseList(payload.authors, LIMITS.authors, LIMITS.item)
+    if (typeof payload.author === 'string' && payload.author.trim()) {
+      author = payload.author.trim().slice(0, LIMITS.item)
+    } else if (payload.authors) {
+      const parsedAuthors = parseList(payload.authors, LIMITS.authors, LIMITS.item)
+      author = parsedAuthors[0] || 'snaxcyz'
+    } else {
+      author = 'snaxcyz'
+    }
   } catch (error) {
     return json({ error: error.message }, 400)
   }
@@ -127,7 +134,7 @@ export async function onRequestPost(context) {
     description,
     date,
     tags,
-    authors,
+    author,
     draft,
     body,
   })
@@ -269,7 +276,7 @@ function yamlString(value) {
   return JSON.stringify(String(value ?? ''))
 }
 
-function makeMdx({ title, description, date, tags, authors, draft, body }) {
+function makeMdx({ title, description, date, tags, author, draft, body }) {
   const draftLine = draft ? 'draft: true\n' : ''
   return `---
 title: ${yamlString(title)}
@@ -277,7 +284,7 @@ description: ${yamlString(description)}
 date: ${yamlString(date)}
 lang: "uz"
 tags: ${JSON.stringify(tags)}
-authors: ${JSON.stringify(authors)}
+author: ${JSON.stringify(author || 'snaxcyz')}
 ${draftLine}---
 
 ${body}

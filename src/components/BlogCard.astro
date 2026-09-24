@@ -2,10 +2,10 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
+  getAuthor,
   getCombinedReadingTime,
   getSubpostCount,
   isSubpost,
-  parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
@@ -16,7 +16,7 @@ import Link from './Link.astro'
 const { entry } = Astro.props
 const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
-const authors = await parseAuthors(entry.data.authors ?? [])
+const author = await getAuthor(entry.data.author ?? 'snaxcyz')
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 ---
 
@@ -41,11 +41,11 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       )
     }
 
-    <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
+    <div class="grow min-w-0">
+      <h3 class="mb-1 text-lg font-medium break-words">{entry.data.title}</h3>
       {
         entry.data.description && (
-          <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
+          <p class="text-muted-foreground mb-2 text-sm break-words">{entry.data.description}</p>
         )
       }
 
@@ -53,31 +53,29 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
         class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
       >
         {
-          authors.length > 0 && (
+          author && (
             <>
-              {authors.map((author) => (
-                <div class="flex items-center gap-x-1.5">
-                  {author.avatar ? (
-                    <img
-                      src={author.avatar}
-                      alt={author.name}
-                      width="20"
-                      height="20"
-                      class="size-5 shrink-0 rounded-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <span
-                      class="bg-muted flex size-5 shrink-0 items-center justify-center rounded-full text-[10px]"
-                      aria-hidden="true"
-                    >
-                      {author.name[0]}
-                    </span>
-                  )}
-                  <span>{author.name}</span>
-                </div>
-              ))}
+              <div class="flex items-center gap-x-1.5">
+                {author.avatar ? (
+                  <img
+                    src={author.avatar}
+                    alt={author.name}
+                    width="20"
+                    height="20"
+                    class="size-5 shrink-0 rounded-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span
+                    class="bg-muted flex size-5 shrink-0 items-center justify-center rounded-full text-[10px]"
+                    aria-hidden="true"
+                  >
+                    {author.name[0]}
+                  </span>
+                )}
+                <span>{author.name}</span>
+              </div>
               <Separator orientation="vertical" className="h-4!" />
             </>
           )

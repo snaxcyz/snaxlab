@@ -80,9 +80,9 @@ export async function getAdjacentPosts(currentId) {
   }
 }
 
-export async function getPostsByAuthor(authorId) {
+export async function getPostsByAuthor(authorId = 'snaxcyz') {
   const posts = await getAllPosts()
-  return posts.filter((post) => post.data.authors?.includes(authorId))
+  return posts.filter((post) => post.data.author === authorId)
 }
 export async function getPostsByTag(tag) {
   const posts = await getAllPosts()
@@ -144,15 +144,41 @@ export async function getParentPost(subpostId) {
   const allPosts = await getAllPosts()
   return allPosts.find((post) => post.id === parentId) || null
 }
-export async function parseAuthors(authorIds = []) {
-  if (!authorIds.length) return []
+export async function getAuthor(authorId = 'snaxcyz') {
+  const allAuthors = await getAllAuthors()
+  const author = allAuthors.find((a) => a.id === authorId)
+  if (author) {
+    return {
+      id: author.id,
+      name: author.data.name || 'Rahmatillo Mahmudjanov',
+      avatar: author.data.avatar || '/static/logo.png',
+      data: author.data,
+      isRegistered: true,
+    }
+  }
+  return {
+    id: authorId,
+    name: 'Rahmatillo Mahmudjanov',
+    avatar: '/static/logo.png',
+    data: { name: 'Rahmatillo Mahmudjanov' },
+    isRegistered: false,
+  }
+}
+
+export async function parseAuthors(authorInput = []) {
+  const ids = Array.isArray(authorInput)
+    ? authorInput
+    : authorInput
+      ? [authorInput]
+      : ['snaxcyz']
+  if (!ids.length) return []
   const allAuthors = await getAllAuthors()
   const authorMap = new Map(allAuthors.map((author) => [author.id, author]))
-  return authorIds.map((id) => {
+  return ids.map((id) => {
     const author = authorMap.get(id)
     return {
       id,
-      name: author?.data?.name || id,
+      name: author?.data?.name || (id === 'snaxcyz' ? 'Rahmatillo Mahmudjanov' : id),
       avatar: author?.data?.avatar || '/static/logo.png',
       isRegistered: !!author,
     }

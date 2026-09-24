@@ -1,5 +1,5 @@
 ---
-name: 'Rakhmatullo Makhmudjonov'
+name: 'Rahmatillo Mahmudjanov'
 pronouns: 'he/him'
 avatar: 'https://gravatar.com/avatar/c40dd573a62deeb72d3c9a5e4dbc2efc?size=256'
 bio: '19 y.o

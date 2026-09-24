@@ -52,7 +52,6 @@ const pageTitle = 'SnaxLab Admin'
       <main class="workspace">
         <section class="hero">
           <div>
-            <p class="eyebrow">for</p>
             <h2>Create and publish "SnaxLab" posts.</h2>
           </div>
           <div class="hero-actions">
@@ -115,7 +114,7 @@ const pageTitle = 'SnaxLab Admin'
                 id="description"
                 name="description"
                 class="small-textarea"
-                placeholder="Short summary for blog cards "
+                placeholder="Short summary for blog cards"
                 maxlength="240"
                 required></textarea>
             </label>
@@ -137,12 +136,12 @@ const pageTitle = 'SnaxLab Admin'
             </div>
 
             <label>
-              <span>Authors</span>
+              <span>Author</span>
               <input
-                id="authors"
-                name="authors"
-                value="enscribe"
-                placeholder="enscribe"
+                id="author"
+                name="author"
+                value="snaxcyz"
+                placeholder="snaxcyz"
               />
             </label>
 
@@ -180,9 +179,9 @@ const pageTitle = 'SnaxLab Admin'
                 <span id="previewLang">UZ</span>
                 <span id="previewDate"></span>
               </div>
-              <h4 id="previewTitle">title will appear here</h4>
+              <h4 id="previewTitle">Your title will appear here</h4>
               <p id="previewDescription">
-                description preview will appear here.
+                Your description preview will appear here.
               </p>
               <div class="tag-list" id="previewTags"></div>
             </div>
@@ -209,7 +208,7 @@ const pageTitle = 'SnaxLab Admin'
         draft: document.querySelector('#draft'),
         slug: document.querySelector('#slug'),
         tags: document.querySelector('#tags'),
-        authors: document.querySelector('#authors'),
+        author: document.querySelector('#author'),
         body: document.querySelector('#body'),
       }
 
@@ -293,7 +292,7 @@ const pageTitle = 'SnaxLab Admin'
           draft: fields.draft.value === 'true',
           slug,
           tags: splitList(fields.tags?.value),
-          authors: splitList(fields.authors?.value || 'enscribe'),
+          author: (fields.author?.value || 'snaxcyz').trim(),
           body: fields.body.value.trim(),
         }
       }
@@ -313,7 +312,7 @@ description: ${yamlString(data.description)}
 date: ${yamlString(today())}
 lang: ${yamlString(data.lang)}
 tags: ${JSON.stringify(data.tags)}
-authors: ${JSON.stringify(data.authors)}
+author: ${JSON.stringify(data.author || 'snaxcyz')}
 ${draftLine}---
 
 ${data.body}
@@ -329,13 +328,15 @@ ${data.body}
         }
       }
 
-      function setMessage(text) {
+      function setMessage(text, type) {
         message.replaceChildren()
+        message.className = type ? `message ${type}` : 'message'
         message.textContent = text
       }
 
       function showPublishSuccess(commitUrl) {
         message.replaceChildren()
+        message.className = 'message success'
         message.appendChild(document.createTextNode('Published successfully'))
 
         if (!isSafeCommitUrl(commitUrl)) return
@@ -404,23 +405,24 @@ ${data.body}
             'draft',
             'slug',
             'tags',
-            'authors',
+            'author',
             'body',
           ]
 
           keys.forEach((key) => {
-            if (!fields[key] || data[key] == null) return
-            const value = data[key]
+            if (!fields[key]) return
+            const value = data[key] ?? (key === 'author' ? data.authors : undefined)
+            if (value == null) return
             fields[key].value = Array.isArray(value)
               ? value.join(', ')
               : String(value)
           })
 
           if (data.slug) fields.slug.dataset.touched = 'true'
-          setMessage('Draft loaded.')
+          setMessage('Draft loaded.', 'success')
           updatePreview()
         } catch {
-          setMessage('Saved draft is invalid.')
+          setMessage('Saved draft is invalid.', 'error')
         }
       }
 
@@ -445,7 +447,7 @@ ${data.body}
 
       clearBtn.addEventListener('click', () => {
         form.reset()
-        fields.authors.value = 'enscribe'
+        fields.author.value = 'snaxcyz'
         fields.slug.dataset.touched = ''
         localStorage.removeItem(STORAGE_KEY)
         setMessage('Editor cleared.')
@@ -457,9 +459,9 @@ ${data.body}
       copyMdxBtn.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(makeMdx(getArticleData()))
-          setMessage('MDX copied to clipboard.')
+          setMessage('MDX copied to clipboard.', 'success')
         } catch {
-          setMessage('Clipboard access is unavailable in this browser.')
+          setMessage('Clipboard access is unavailable in this browser.', 'error')
         }
       })
 
@@ -501,7 +503,7 @@ ${data.body}
           showPublishSuccess(result.commitUrl)
           localStorage.removeItem(STORAGE_KEY)
         } catch (error) {
-          setMessage(error.message || 'Publish failed.')
+          setMessage(error.message || 'Publish failed.', 'error')
         } finally {
           publishing = false
           form.classList.remove('is-loading')
@@ -510,8 +512,24 @@ ${data.body}
         }
       })
 
+      const navItems = document.querySelectorAll('.nav-item')
+      function updateActiveNav(hash) {
+        const targetHash = hash || window.location.hash || '#editor'
+        navItems.forEach((item) => {
+          item.classList.toggle('active', item.getAttribute('href') === targetHash)
+        })
+      }
+
+      window.addEventListener('hashchange', () => updateActiveNav())
+      navItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          updateActiveNav(item.getAttribute('href'))
+        })
+      })
+
       previewDate.textContent = today()
       setTheme(document.documentElement.dataset.theme || 'dark')
+      updateActiveNav()
       updatePreview()
     </script>
 
@@ -581,6 +599,10 @@ ${data.body}
         --link: #0f766e;
         --code: #292524;
         --shadow: 0 18px 50px rgba(28, 25, 23, 0.08);
+      }
+
+      html {
+        scroll-behavior: smooth;
       }
 
       * {
@@ -683,12 +705,17 @@ ${data.body}
       }
 
       .nav-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
         padding: 10px 12px;
         border: 1px solid transparent;
         border-radius: 10px;
         color: var(--soft);
         font-size: 0.94rem;
         font-weight: 650;
+        text-align: center;
         text-decoration: none;
         transition:
           background 180ms ease,
@@ -705,7 +732,7 @@ ${data.body}
       }
 
       .nav-item:hover {
-        transform: translateX(2px);
+        transform: translateY(-1px);
       }
 
       .status-card {
@@ -993,6 +1020,21 @@ ${data.body}
         margin: 0;
         color: var(--soft);
         font-weight: 700;
+        transition: color 0.2s ease;
+      }
+
+      .message.error {
+        color: var(--danger);
+      }
+
+      .message.success {
+        color: var(--success);
+      }
+
+      #editor,
+      #preview,
+      #publish {
+        scroll-margin-top: 24px;
       }
 
       .preview {
@@ -1021,11 +1063,15 @@ ${data.body}
         font-size: 1.36rem;
         line-height: 1.15;
         letter-spacing: 0;
+        overflow-wrap: break-word;
+        word-break: break-word;
       }
 
       .preview-card p {
         color: var(--soft);
         line-height: 1.7;
+        overflow-wrap: break-word;
+        word-break: break-word;
       }
 
       .tag-list {
@@ -1041,6 +1087,7 @@ ${data.body}
         background: var(--surface);
         color: var(--soft);
         font-size: 0.8rem;
+        overflow-wrap: anywhere;
       }
 
       .mdx-box {
@@ -1073,9 +1120,18 @@ ${data.body}
         overflow: auto;
         padding: 18px;
         color: var(--code);
+        font-family:
+          'Geist Mono',
+          ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          Monaco,
+          Consolas,
+          monospace;
         font-size: 0.82rem;
         line-height: 1.65;
         white-space: pre-wrap;
+        word-break: break-word;
       }
 
       .is-loading {
@@ -1137,14 +1193,17 @@ ${data.body}
           padding: 16px;
         }
 
+        .status-card {
+          margin-top: 18px;
+        }
+
         .hero {
           align-items: stretch;
           flex-direction: column;
           padding: 22px;
         }
 
-        .two-cols,
-        .nav {
+        .two-cols {
           grid-template-columns: 1fr;
         }
 
@@ -1164,6 +1223,16 @@ ${data.body}
           grid-template-columns: 1fr;
         }
 
+        input,
+        select,
+        textarea {
+          font-size: 16px;
+        }
+
+        .body-editor {
+          min-height: 320px;
+        }
+
         button,
         .theme-toggle {
           width: 100%;
@@ -1180,12 +1249,12 @@ ${data.body}
         }
 
         .brand-mark {
-          width: 44px;
-          height: 44px;
+          width: 40px;
+          height: 40px;
         }
 
         .hero h2 {
-          font-size: 2rem;
+          font-size: 1.75rem;
         }
 
         .badge,

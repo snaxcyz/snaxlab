@@ -3,7 +3,7 @@ export const SITE = {
   description:
     'A personal blog and portfolio about software, music, books, math, art, and digital craft.',
   href: 'https://snaxlab.netlify.app',
-  author: 'Rakhmatullo Makhmudjonov',
+  author: 'Rahmatillo Mahmudjanov',
   locale: 'uz',
   featuredPostCount: 2,
   postsPerPage: 3,
@@ -14,12 +14,12 @@ export const NAV_LINKS = [
     label: 'blog',
   },
   {
-    href: '/authors',
-    label: 'authors',
+    href: '/author',
+    label: 'Author',
   },
   {
     href: '/about',
-    label: 'about',
+    label: 'haqida',
   },
   {
     href: '/search',
